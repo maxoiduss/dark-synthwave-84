@@ -1,0 +1,29 @@
+{
+  "name": "dark-synthwave-84",
+  "displayName": "Dark SynthWave '84",
+  "description": "Dark Synthwave inspired colour theme",
+  "version": "1.0.0",
+  "author": "maxoiduss",
+  "publisher": "dell-maxoiduss",
+  "icon": "icon.png",
+  "license": "MIT",
+  "engines": {
+    "vscode": "*"
+  },
+  "extensionKind": [
+		"ui"
+	],
+  "categories": [
+    "Themes"
+  ],
+  "contributes": {
+    "themes": [
+      {
+        "id": "Dark SynthWave '84",
+        "label": "Dark SynthWave '84",
+        "uiTheme": "vs-dark",
+        "path": "./themes/dark-synthwave-84-color-theme.json"
+      }
+    ]
+  }
+}
