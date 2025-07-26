@@ -239,6 +239,12 @@
 			}
 		},
 		{
+			"scope": "constant.language.json",
+			"settings": {
+				"foreground": "#d353e4"
+			}
+		},
+		{
 			"scope": "source.cs constant",
 			"settings": {
 				"foreground": "#F97E72"
