@@ -12,7 +12,7 @@
 		"badge.foreground": "#FFFFFF",
 		"breadcrumbPicker.background": "#232530",
 		"button.background": "#614D85",
-		"debugToolBar.background": "#463465",
+		"debugToolBar.background": "#463465EE",
 		"diffEditor.insertedTextBackground": "#0BEB9935",
 		"diffEditor.removedTextBackground": "#FE445035",
 		"dropdown.background": "#232530",
