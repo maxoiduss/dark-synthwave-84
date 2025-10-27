@@ -11,8 +11,8 @@
     "vscode": "*"
   },
   "extensionKind": [
-		"ui"
-	],
+    "ui"
+  ],
   "categories": [
     "Themes"
   ],
@@ -25,5 +25,6 @@
         "path": "./themes/dark-synthwave-84-color-theme.json"
       }
     ]
-  }
+  },
+  "dependencies": {}
 }

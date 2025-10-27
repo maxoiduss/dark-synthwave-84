@@ -1,2 +1,4 @@
 vsc-extension-quickstart.md
 *.vsix
+package-lock.json
+node_modules
