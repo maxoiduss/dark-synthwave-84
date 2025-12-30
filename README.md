@@ -24,7 +24,7 @@ If this theme is too much, then I recommend [Horizon](https://github.com/jolaley
 ## Thanks from Me
 Thank you [Robb](https://github.com/robb0wen)
 
-### 1.0.0
+### 1.0.1
 
 Initial release of  *`Dark Synthwave '84`*
 

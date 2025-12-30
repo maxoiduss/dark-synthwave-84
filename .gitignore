@@ -1,2 +1,5 @@
 vsc-extension-quickstart.md
 *.vsix
+.git/
+node_modules/
+out/
