@@ -4,4 +4,3 @@ vsc-extension-quickstart.md
 node_modules/
 out/
 package-lock.json
-node_modules
