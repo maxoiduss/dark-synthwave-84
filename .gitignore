@@ -3,3 +3,5 @@ vsc-extension-quickstart.md
 .git/
 node_modules/
 out/
+package-lock.json
+node_modules
