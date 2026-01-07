@@ -24,9 +24,15 @@ If this theme is too much, then I recommend [Horizon](https://github.com/jolaley
 ## Thanks from Me
 Thank you [Robb](https://github.com/robb0wen)
 
+### 1.0.2
+
+ - New and *Fixed* `Hidden Extensions` section
+
+ - `Show/Hide Activity Bar` button in top left of status bar
+
 ### 1.0.1
 
-Initial release of  *`Dark Synthwave '84`*
+ - Initial release of  *`Dark Synthwave '84`*
 
 ## For more information
 

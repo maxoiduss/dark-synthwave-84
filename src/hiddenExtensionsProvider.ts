@@ -76,9 +76,6 @@ export class HiddenExtensionsProvider implements vscode.WebviewViewProvider {
           "@builtin"
         );
         await this.unfocusExtensionsSearch();
-      } else {
-        await vscode.commands.executeCommand(this.searchCommandName, "");
-        await this.unfocusExtensionsSearch();
       }
     });
   }
