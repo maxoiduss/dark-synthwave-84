@@ -18,38 +18,49 @@ function getNonce() {
 export class HiddenExtensionsProvider implements vscode.WebviewViewProvider {
   private view: WebviewView | undefined;
   private context: vscode.ExtensionContext;
+  private lastVisibleValue: boolean = false;
+  private readonly hideCommandText = "hideHidden";
   private readonly searchCommandName = "workbench.extensions.search";
-  private readonly unfocusCommandName = "workbench.action.focusActiveEditorGroup";
+  private readonly unfocusCommandName =
+    "workbench.action.focusActiveEditorGroup";
 
   constructor(context: vscode.ExtensionContext) {
     this.context = context;
     this.view = undefined;
   }
 
+  private async unfocusExtensionsSearch() {
+    await vscode.commands.executeCommand(this.unfocusCommandName);
+  }
+
+  private async showHiddenExtensions() {
+    this.updateWebview();
+    await vscode.commands.executeCommand(
+      this.searchCommandName,
+      keyWordForHiddens
+    );
+  }
+
+  private async hideHiddenExtensions() {
+    this.updateWebview("collapse view to stop show")
+    await vscode.commands.executeCommand(this.searchCommandName, "");
+  }
+
   registerCommands() {
     const showExtensions = vscode.commands.registerCommand(
       `${brand}.showBuiltinFeatures`,
       () => {
-        vscode.commands.executeCommand(
-          this.searchCommandName,
-          keyWordForHiddens
-        );
+        this.showHiddenExtensions();
       }
     );
     const hideExtensions = vscode.commands.registerCommand(
       `${brand}.hideBuiltinFeatures`,
       () => {
-        vscode.commands.executeCommand(this.searchCommandName, "");
+        this.hideHiddenExtensions();
       }
     );
 
     this.context.subscriptions.push(showExtensions, hideExtensions);
-  }
-
-  async unfocusExtensionsSearch() {
-    await vscode.commands.executeCommand(
-      this.unfocusCommandName
-    );
   }
 
   resolveWebviewView(
@@ -63,24 +74,28 @@ export class HiddenExtensionsProvider implements vscode.WebviewViewProvider {
     this.view = webviewView;
     this.updateWebview();
 
+    const visibilityTimeout = 100;
+
     webviewView.webview.onDidReceiveMessage(async (message) => {
-      if (message.command === "hideHiddenExtensions") {
-        await vscode.commands.executeCommand(this.searchCommandName, "");
+      if (message.command === this.hideCommandText) {
+        await this.hideHiddenExtensions();
         await this.unfocusExtensionsSearch();
       }
     });
-    webviewView.onDidChangeVisibility(async () => {
-      if (webviewView.visible) {
-        await vscode.commands.executeCommand(
-          this.searchCommandName,
-          "@builtin"
-        );
-        await this.unfocusExtensionsSearch();
-      }
+    webviewView.onDidChangeVisibility(() => {
+      setTimeout(async () => {
+        if (this.lastVisibleValue !== webviewView.visible) {
+          this.lastVisibleValue = webviewView.visible;
+          if (this.lastVisibleValue) {
+            await this.showHiddenExtensions();
+            await this.unfocusExtensionsSearch();
+          }
+        }
+      }, visibilityTimeout);
     });
   }
 
-  updateWebview() {
+  updateWebview(withText: string = "Hide Builtin Features") {
     if (!this.view) {
       return;
     }
@@ -121,11 +136,11 @@ export class HiddenExtensionsProvider implements vscode.WebviewViewProvider {
     </head>
     <body aria-label>
       <h2>Hidden Extensions</h2>
-      <button id="showBtn" title="Extensions">Hide Builtin Features</button>
+      <button id="showBtn" title="Extensions">${withText}</button>
       <script nonce='${nonce}' type='module'>
         const vscode = acquireVsCodeApi();
         document.getElementById('showBtn').addEventListener('click', () => {
-          vscode.postMessage({ command: 'hideHiddenExtensions' });
+          vscode.postMessage({ command: '${this.hideCommandText}' });
         });
       </script>
     </body>
