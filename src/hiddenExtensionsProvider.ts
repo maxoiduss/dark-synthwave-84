@@ -4,6 +4,7 @@ import { WebviewView } from "vscode";
 export const brand: string = "dark-synthwave";
 
 const keyWordForHiddens = "@builtin";
+const nonce = getNonce();
 
 function getNonce() {
   let text = "";
@@ -99,7 +100,7 @@ export class HiddenExtensionsProvider implements vscode.WebviewViewProvider {
     if (!this.view) {
       return;
     }
-    const nonce = getNonce();
+    
     const csp = `default-src 'none'; img-src ${this.view?.webview.cspSource} blob:;
       style-src 'nonce-${nonce}' ${this.view?.webview.cspSource}; script-src 'nonce-${nonce}';`;
 
