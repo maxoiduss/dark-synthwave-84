@@ -43,7 +43,7 @@ export class HiddenExtensionsProvider implements vscode.WebviewViewProvider {
   }
 
   private async hideHiddenExtensions() {
-    this.updateWebview("collapse view to stop show")
+    this.updateWebview("collapse view to stop show");
     await vscode.commands.executeCommand(this.searchCommandName, "");
   }
 

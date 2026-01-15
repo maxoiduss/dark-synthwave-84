@@ -13,7 +13,7 @@ export function activate(context: vscode.ExtensionContext) {
   activityBarToggle.show();
 
   const toggle = vscode.commands.registerCommand(`${brand}.showActivity`, () => {
-    vscode.commands.executeCommand("workbench.action.toggleActivityBarVisibility")
+    vscode.commands.executeCommand("workbench.action.toggleActivityBarVisibility");
   });
   context.subscriptions.push(toggle);
 
