@@ -19,6 +19,7 @@ function getNonce() {
 export class HiddenExtensionsProvider implements vscode.WebviewViewProvider {
   private view: WebviewView | undefined;
   private context: vscode.ExtensionContext;
+  private registered: boolean = false;
   private lastVisibleValue: boolean = false;
   private readonly hideCommandText = "hideHidden";
   private readonly searchCommandName = "workbench.extensions.search";
@@ -28,6 +29,8 @@ export class HiddenExtensionsProvider implements vscode.WebviewViewProvider {
   constructor(context: vscode.ExtensionContext) {
     this.context = context;
     this.view = undefined;
+
+    this.registerCommands();
   }
 
   private async unfocusExtensionsSearch() {
@@ -48,6 +51,8 @@ export class HiddenExtensionsProvider implements vscode.WebviewViewProvider {
   }
 
   registerCommands() {
+    if (this.registered) { return; }
+    
     const showExtensions = vscode.commands.registerCommand(
       `${brand}.showBuiltinFeatures`,
       () => {
@@ -62,6 +67,7 @@ export class HiddenExtensionsProvider implements vscode.WebviewViewProvider {
     );
 
     this.context.subscriptions.push(showExtensions, hideExtensions);
+    this.registered = true;
   }
 
   resolveWebviewView(

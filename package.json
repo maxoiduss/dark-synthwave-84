@@ -60,10 +60,27 @@
         "title": "Hidden extensions: hide"
       },
       {
-        "command": "dark-synthwave.showActivity",
+        "command": "dark-synthwave.showActivityBar",
         "title": "Show/Hide Activity Bar"
+      },
+      {
+        "command": "dark-synthwave.aimFile",
+        "title": "Reveal file/extension",
+        "icon": {
+          "dark": "resources/aimDark.svg",
+          "light": "resources/aimLight.svg"
+        }
       }
-    ]
+    ],
+    "menus":
+    {
+      "editor/title": [
+        {
+          "command": "dark-synthwave.aimFile",
+          "group": "navigation"
+        }
+      ]
+    }   
   },
   "scripts": {
     "vscode:prepublish": "npm run compile",

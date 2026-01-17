@@ -1,32 +1,44 @@
 import * as vscode from "vscode";
+import { ActivityBarHandler } from "./activityBarHandler";
+import { ExtensionPageHandler } from "./extensionPageHandler";
 import { brand, HiddenExtensionsProvider } from "./hiddenExtensionsProvider";
 
-const activityBarToggleIcon: string = "layout-sidebar-left-dock";
-
-let activityBarToggle: vscode.StatusBarItem | undefined;
+function noRealDocOpened() {
+  return vscode.window.activeTextEditor?.document?.fileName ?
+    vscode.window.activeTextEditor.document.isUntitled
+  : true;
+}
 
 export function activate(context: vscode.ExtensionContext) {
-  activityBarToggle = vscode.window.createStatusBarItem(vscode.StatusBarAlignment.Left, 100);
-  activityBarToggle.text = `$(${activityBarToggleIcon})`;
-  activityBarToggle.tooltip = "Show/Hide Activity Bar";
-  activityBarToggle.command = `${brand}.showActivity`;
-  activityBarToggle.show();
+  ActivityBarHandler.create();
 
-  const toggle = vscode.commands.registerCommand(`${brand}.showActivity`, () => {
-    vscode.commands.executeCommand("workbench.action.toggleActivityBarVisibility");
-  });
-  context.subscriptions.push(toggle);
+  const toggleRegistered = vscode.commands.registerCommand(
+    ActivityBarHandler.commandName,
+    () => vscode.commands.executeCommand(
+      "workbench.action.toggleActivityBarVisibility"
+    )
+  );
+  context.subscriptions.push(toggleRegistered);
+
+  const extensionPageHandler = new ExtensionPageHandler();
+  const aimRegistered = vscode.commands.registerCommand(
+    `${brand}.aimFile`,
+    async () => noRealDocOpened() ?
+      await extensionPageHandler.openExtensionPage()
+    : await vscode.commands.executeCommand(
+        "workbench.files.action.showActiveFileInExplorer"
+      )
+  );
+  context.subscriptions.push(aimRegistered);
 
   const hiddenExtensionsProvider = new HiddenExtensionsProvider(context);
-  hiddenExtensionsProvider.registerCommands();
-
-  const webview = vscode.window.registerWebviewViewProvider(
+  const webviewRegistered = vscode.window.registerWebviewViewProvider(
     "hiddenView",
     hiddenExtensionsProvider
   );
-  context.subscriptions.push(webview);
+  context.subscriptions.push(webviewRegistered);
 }
 
 export function deactivate(context: vscode.ExtensionContext) {
-  activityBarToggle?.dispose();
+  ActivityBarHandler.dispose();
 }
