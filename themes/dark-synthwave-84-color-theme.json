@@ -80,6 +80,7 @@
 		"focusBorder": "#880088",
 		"foreground": "#FFFFFF",
 		"input.background": "#2A2139",
+		"input.border": "#C9303822",
 		"inputOption.activeBorder": "#FF7EDB99",
 		"inputValidation.errorBackground": "#FE445080",
 		"inputValidation.errorBorder": "#FE445000",
