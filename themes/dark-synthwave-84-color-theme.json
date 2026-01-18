@@ -158,7 +158,7 @@
 		"tab.border": "#07000F",
 		"tab.inactiveBackground": "#26233598",
 		"tab.inactiveForeground": "#D8D8D89F",
-		"tab.activeForeground": "#FFFFFF",
+		"tab.activeForeground": "#E5D2FF",
 		"tab.activeBackground": "#27001570",
 		"tab.lastPinnedBorder": "#505050",
 		"terminal.ansiBlue": "#03EDF9",
