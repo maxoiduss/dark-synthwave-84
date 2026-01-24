@@ -60,6 +60,10 @@
         "title": "Hidden extensions: hide"
       },
       {
+        "command": "dark-synthwave.showOutputLog",
+        "title": "Show exact log in Output"
+      },
+      {
         "command": "dark-synthwave.showActivityBar",
         "title": "Show/Hide Activity Bar"
       },

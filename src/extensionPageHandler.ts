@@ -1,5 +1,11 @@
 import * as vscode from "vscode";
 
+export function noRealDocOpened() {
+  return vscode.window.activeTextEditor?.document?.fileName ?
+    vscode.window.activeTextEditor.document.isUntitled
+  : true;
+}
+
 export class ExtensionPageHandler {
   async openExtensionPage() {
     if (!vscode.workspace.name) {
