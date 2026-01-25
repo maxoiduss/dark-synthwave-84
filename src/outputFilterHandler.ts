@@ -10,30 +10,43 @@ interface LogConfig {
 const empty = '';
 
 export class OutputFilterHandler implements vscode.Disposable {
-  private static readonly subscriptions: vscode.Disposable[] = [];
+  private static readonly subscriptions: Map<number, vscode.Disposable> = new Map();
 
-  private pasteRegistered = false;
-  private lastCopiedText = empty;
+  private copyRegistered: boolean = false;
+  private pasteRegistered: boolean = false;
+  private lastCopiedText: string = empty;
   private dismissNotification: (() => void) | undefined;
   private targetLogsRecord: Record<string, LogConfig> = {
     "main": { name: "Main", show: ["warning", "error"], exclude: [] },
     "exthost": { name: "Extension Host", show: [], exclude: ["github.copilot-chat", "claude-code"] },
     "rendererLog": { name: "Window", show: [], exclude: ["typescript-explorer"] }
   }
-  private targetLogs = new Map<string, LogConfig>(Object.entries(this.targetLogsRecord));
+  private targetLogs: Map<string, LogConfig> = new Map<string, LogConfig>(Object.entries(this.targetLogsRecord));
 
   constructor(private readonly context: vscode.ExtensionContext) {
-    OutputFilterHandler.subscriptions.push(
-      this.registerCopyCommand(),
-      this.registerShowLogCommand()
-    );
+    const changeTextEditor = vscode.window.onDidChangeActiveTextEditor((editor) => {
+      if (this.getLogTarget(editor?.document) !== false) {
+        if (!this.copyRegistered) {
+          OutputFilterHandler.subscriptions.set(1, this.registerCopyCommand());
+          this.copyRegistered = true;
+        }
+      } else if (this.copyRegistered) {
+        OutputFilterHandler.subscriptions.get(1)?.dispose();
+        OutputFilterHandler.subscriptions.delete(1);
+        this.copyRegistered = false;
+      }
+    });
+    OutputFilterHandler.subscriptions.set(1, this.registerCopyCommand());
+    OutputFilterHandler.subscriptions.set(10, this.registerShowLogCommand());
+    OutputFilterHandler.subscriptions.set(100, changeTextEditor);
+    this.copyRegistered = true;
   }
 
   public dispose() {
-    while (OutputFilterHandler.subscriptions.length) {
-      const subscription = OutputFilterHandler.subscriptions.pop();
-      subscription?.dispose();
-    }
+    OutputFilterHandler.subscriptions.forEach((subscription, _) => {
+      subscription.dispose();
+    });
+    OutputFilterHandler.subscriptions.clear();
   }
   
   private registerShowLogCommand(): vscode.Disposable {
