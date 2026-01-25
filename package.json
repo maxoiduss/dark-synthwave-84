@@ -53,15 +53,15 @@
     "commands": [
       {
         "command": "dark-synthwave.showBuiltinFeatures",
-        "title": "Hidden extensions: show"
+        "title": "Hidden Extensions: Show"
       },
       {
         "command": "dark-synthwave.hideBuiltinFeatures",
-        "title": "Hidden extensions: hide"
+        "title": "Hidden Extensions: Hide"
       },
       {
         "command": "dark-synthwave.showOutputLog",
-        "title": "Show exact log in Output"
+        "title": "Show Ouput Log Using Rules"
       },
       {
         "command": "dark-synthwave.showActivityBar",
@@ -82,6 +82,32 @@
         {
           "command": "dark-synthwave.aimFile",
           "group": "navigation"
+        }
+      ],
+      "editor/context": [
+        {
+          "command": "dark-synthwave.showOutputLog",
+          "group": "panel",
+          "when": "focusedView == 'workbench.panel.output'"
+        }
+      ],
+      "editor/lineNumber/context": [
+        {
+          "command": "dark-synthwave.showOutputLog",
+          "group": "panel",
+          "when": "focusedView == 'workbench.panel.output'"
+        }
+      ],
+      "terminal/context": [
+        {
+          "command": "dark-synthwave.showOutputLog",
+          "group": "panel"
+        }
+      ],
+      "terminal/title/context": [
+        {
+          "command": "dark-synthwave.showOutputLog",
+          "group": "panel"
         }
       ]
     }   
