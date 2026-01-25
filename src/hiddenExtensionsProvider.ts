@@ -18,7 +18,6 @@ function getNonce() {
 
 export class HiddenExtensionsProvider implements vscode.WebviewViewProvider {
   private view: WebviewView | undefined;
-  private context: vscode.ExtensionContext;
   private registered: boolean = false;
   private lastVisibleValue: boolean = false;
   private readonly hideCommandText = "hideHidden";
@@ -26,10 +25,7 @@ export class HiddenExtensionsProvider implements vscode.WebviewViewProvider {
   private readonly unfocusCommandName =
     "workbench.action.focusActiveEditorGroup";
 
-  constructor(context: vscode.ExtensionContext) {
-    this.context = context;
-    this.view = undefined;
-
+  constructor(private readonly context: vscode.ExtensionContext) {
     this.registerCommands();
   }
 
@@ -50,7 +46,7 @@ export class HiddenExtensionsProvider implements vscode.WebviewViewProvider {
     await vscode.commands.executeCommand(this.searchCommandName, "");
   }
 
-  registerCommands() {
+  public registerCommands() {
     if (this.registered) { return; }
     
     const showExtensions = vscode.commands.registerCommand(
@@ -70,10 +66,10 @@ export class HiddenExtensionsProvider implements vscode.WebviewViewProvider {
     this.registered = true;
   }
 
-  resolveWebviewView(
+  public resolveWebviewView(
     webviewView: WebviewView,
-    context: vscode.WebviewViewResolveContext<unknown>,
-    token: vscode.CancellationToken
+    _context: vscode.WebviewViewResolveContext<unknown>,
+    _token: vscode.CancellationToken
   ): void | Thenable<void> {
     webviewView.webview.options = {
       enableScripts: true,
@@ -102,7 +98,7 @@ export class HiddenExtensionsProvider implements vscode.WebviewViewProvider {
     });
   }
 
-  updateWebview(withText: string = "Hide Builtin Features") {
+  public updateWebview(withText: string = "Hide Builtin Features") {
     if (!this.view) {
       return;
     }

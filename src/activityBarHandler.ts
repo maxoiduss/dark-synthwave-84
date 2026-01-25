@@ -8,9 +8,9 @@ export class ActivityBarHandler {
   private static disposed: boolean = false;
   private static created: boolean = false;
 
-  static commandName: string;
+  public static commandName: string;
 
-  static create() {
+  public static create() {
     this.commandName = `${brand}.showActivityBar`;
 
     if (this.created) { return; }
@@ -24,7 +24,7 @@ export class ActivityBarHandler {
     this.created = true;
   }
 
-  static dispose() {
+  public static dispose() {
     if (this.disposed) { return; }
     
     this.activityBarToggle?.dispose();
