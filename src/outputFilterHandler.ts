@@ -1,4 +1,5 @@
 import * as vscode from "vscode";
+import { window } from "vscode";
 import { brand } from "./hiddenExtensionsProvider";
 
 interface LogConfig {
@@ -8,23 +9,30 @@ interface LogConfig {
 }
 
 const empty = '';
+const tag = { name: "output.filter", scheme: "rules" };
 
 export class OutputFilterHandler implements vscode.Disposable {
   private static readonly subscriptions: Map<number, vscode.Disposable> = new Map();
 
   private copyRegistered: boolean = false;
   private pasteRegistered: boolean = false;
+  private configurationRegistered: boolean = false;
   private lastCopiedText: string = empty;
   private dismissNotification: (() => void) | undefined;
-  private targetLogsRecord: Record<string, LogConfig> = {
+  private targetLogsPlaceholder: Record<string, LogConfig> =
+    { "main": { name: "Main", show: ["warning", "error"], exclude: [] } };
+  /*private targetLogsRecord: Record<string, LogConfig> = {
     "main": { name: "Main", show: ["warning", "error"], exclude: [] },
     "exthost": { name: "Extension Host", show: [], exclude: ["github.copilot-chat", "claude-code"] },
     "rendererLog": { name: "Window", show: [], exclude: ["typescript-explorer"] }
-  }
-  private targetLogs: Map<string, LogConfig> = new Map<string, LogConfig>(Object.entries(this.targetLogsRecord));
+  }*/
+  private readonly targetLogs: Map<string, LogConfig> = new Map();
 
   constructor(private readonly context: vscode.ExtensionContext) {
-    const changeTextEditor = vscode.window.onDidChangeActiveTextEditor((editor) => {
+    const changedConfiguration = vscode.workspace.onDidChangeConfiguration(() =>
+      this.updateConfiguration(changedConfiguration)
+    );
+    const changedTextEditor = window.onDidChangeActiveTextEditor((editor) => {
       if (this.getLogTarget(editor?.document) !== false) {
         if (!this.copyRegistered) {
           OutputFilterHandler.subscriptions.set(1, this.registerCopyCommand());
@@ -38,7 +46,8 @@ export class OutputFilterHandler implements vscode.Disposable {
     });
     OutputFilterHandler.subscriptions.set(1, this.registerCopyCommand());
     OutputFilterHandler.subscriptions.set(10, this.registerShowLogCommand());
-    OutputFilterHandler.subscriptions.set(100, changeTextEditor);
+    OutputFilterHandler.subscriptions.set(100, changedConfiguration);
+    OutputFilterHandler.subscriptions.set(1000, changedTextEditor);
     this.copyRegistered = true;
   }
 
@@ -48,6 +57,25 @@ export class OutputFilterHandler implements vscode.Disposable {
     });
     OutputFilterHandler.subscriptions.clear();
   }
+
+  private updateConfiguration(didChangeConfigurationListener: vscode.Disposable) {
+    if (!this.configurationRegistered) {
+      this.context.subscriptions.push(didChangeConfigurationListener);
+      this.configurationRegistered = true;
+    }
+    const config = vscode.workspace.getConfiguration(tag.name);
+    const targetLogsRecord = config.get<Record<string, LogConfig>>(tag.scheme);
+
+    if (!targetLogsRecord) { return; }
+
+    this.targetLogs.clear();
+
+    Object.entries(targetLogsRecord).map<[string, LogConfig]>(([name, log]) =>
+      [name, { ...log }] as [string, LogConfig]
+    ).forEach(([k, v]) =>
+      this.targetLogs.set(k, v)
+    );
+  }
   
   private registerShowLogCommand(): vscode.Disposable {
     const show = vscode.commands.registerCommand(
@@ -56,7 +84,7 @@ export class OutputFilterHandler implements vscode.Disposable {
         this.lastCopiedText = await vscode.env.clipboard.readText();
   
         const logNames = Array.from(this.targetLogs.values()).map((log) => log.name);
-        const selected = await vscode.window.showQuickPick(
+        const selected = await window.showQuickPick(
           logNames, { title: "Choose the Output channel"}
         );
         if (!selected) { return; }
@@ -86,7 +114,7 @@ export class OutputFilterHandler implements vscode.Disposable {
     const copy = vscode.commands.registerCommand(
       "editor.action.clipboardCopyAction",
       async () => {
-        const editor = vscode.window.activeTextEditor;
+        const editor = window.activeTextEditor;
         if (!editor) { return; }
   
         this.closeNotification();
@@ -136,7 +164,7 @@ export class OutputFilterHandler implements vscode.Disposable {
   
   async showCanOpenSettings(): Promise<void> {
     const yes = "Yes";
-    const answer = await vscode.window.showInformationMessage(
+    const answer = await window.showInformationMessage(
       "You can check the rules in settings. Open settings?", yes, "No");
     if (answer === yes) {
       await vscode.commands.executeCommand(
@@ -146,7 +174,7 @@ export class OutputFilterHandler implements vscode.Disposable {
     }
   }
   
-  async sendToClipboardAndNotify(config: LogConfig): Promise<void> {
+  private async sendToClipboardAndNotify(config: LogConfig): Promise<void> {
     const comma = ", ";
     const exclude = config.exclude.length > 0 && config.exclude[0].length > 0 ?
       `!${config.exclude.join(`${comma}!`)}` : empty;
@@ -154,7 +182,7 @@ export class OutputFilterHandler implements vscode.Disposable {
     const text = [include, exclude].filter(Boolean).join(comma);
     await vscode.env.clipboard.writeText(text);
   
-    return vscode.window.withProgress({
+    return window.withProgress({
         location: vscode.ProgressLocation.Notification,
         title: "You can paste the rule to the Filter in Output now.",
         cancellable: true

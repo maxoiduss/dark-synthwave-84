@@ -50,6 +50,60 @@
         }
       ]
     },
+    "configuration": {
+      "title": "Dark SynthWave '84",
+      "properties": {
+        "output.filter.rules": {
+          "type": "object",
+          "title": "Filter",
+          "description": "Rules for log filtering",
+          "markdownDescription": "Output Filter: Rules. \nConfigure the log filtering logic here.",
+          "additionalProperties": {
+            "type": "object",
+            "properties": {
+              "name": {
+                "type": "string",
+                "description": "Unique name for this log"
+              },
+              "show": {
+                "type": "array",
+                "description": "List of fields to show",
+                "items": { "type": "string" }
+              },
+              "exclude": {
+                "type": "array",
+                "description": "List of fields to exclude",
+                "items": { "type": "string" }
+              }
+            },
+            "required": [
+              "name",
+              "show",
+              "exclude"
+            ]
+          },
+          "default": {
+            "main": {
+              "name": "Main",
+              "show": [
+                "error",
+                "warning"
+              ],
+              "exclude": [
+                "pid"
+              ]
+            },
+            "shared": {
+              "name": "Shared",
+              "show": [
+                "ERR_"
+              ],
+              "exclude": []
+            }
+          }
+        }
+      }
+    },
     "commands": [
       {
         "command": "dark-synthwave.showBuiltinFeatures",
