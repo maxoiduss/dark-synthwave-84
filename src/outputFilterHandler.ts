@@ -1,6 +1,7 @@
 import * as vscode from "vscode";
 import { window } from "vscode";
 import { brand } from "./hiddenExtensionsProvider";
+import { ConfigurationManager } from "./configurationManager";
 
 interface LogConfig {
   name: string;
@@ -9,7 +10,13 @@ interface LogConfig {
 }
 
 const empty = '';
-const tag = { name: "output.filter", scheme: "rules" };
+const tag = {
+  name: "output.filter",
+  scheme: {
+    rules: "rules",
+    edit: "edit.rules"
+  }
+};
 
 export class OutputFilterHandler implements vscode.Disposable {
   private static readonly subscriptions: Map<number, vscode.Disposable> = new Map();
@@ -17,6 +24,7 @@ export class OutputFilterHandler implements vscode.Disposable {
   private copyRegistered: boolean = false;
   private pasteRegistered: boolean = false;
   private configurationRegistered: boolean = false;
+  private configurationUpdating: boolean = false;
   private lastCopiedText: string = empty;
   private dismissNotification: (() => void) | undefined;
   private targetLogsPlaceholder: Record<string, LogConfig> =
@@ -27,10 +35,12 @@ export class OutputFilterHandler implements vscode.Disposable {
     "rendererLog": { name: "Window", show: [], exclude: ["typescript-explorer"] }
   }*/
   private readonly targetLogs: Map<string, LogConfig> = new Map();
+  private readonly configManager: ConfigurationManager =
+    ConfigurationManager.getInstance(tag.name);
 
   constructor(private readonly context: vscode.ExtensionContext) {
-    const changedConfiguration = vscode.workspace.onDidChangeConfiguration(() =>
-      this.updateConfiguration(changedConfiguration)
+    const changedConfig = this.configManager.onChangedConfiguration(() =>
+      this.updateConfiguration(changedConfig)
     );
     const changedTextEditor = window.onDidChangeActiveTextEditor((editor) => {
       if (this.getLogTarget(editor?.document) !== false) {
@@ -46,9 +56,11 @@ export class OutputFilterHandler implements vscode.Disposable {
     });
     OutputFilterHandler.subscriptions.set(1, this.registerCopyCommand());
     OutputFilterHandler.subscriptions.set(10, this.registerShowLogCommand());
-    OutputFilterHandler.subscriptions.set(100, changedConfiguration);
+    OutputFilterHandler.subscriptions.set(100, changedConfig);
     OutputFilterHandler.subscriptions.set(1000, changedTextEditor);
+
     this.copyRegistered = true;
+    this.updateConfiguration();
   }
 
   public dispose() {
@@ -58,23 +70,61 @@ export class OutputFilterHandler implements vscode.Disposable {
     OutputFilterHandler.subscriptions.clear();
   }
 
-  private updateConfiguration(didChangeConfigurationListener: vscode.Disposable) {
+  private async updateConfiguration(
+    didChangeConfigurationListener?: vscode.Disposable
+  ): Promise<void> {
     if (!this.configurationRegistered) {
-      this.context.subscriptions.push(didChangeConfigurationListener);
-      this.configurationRegistered = true;
+      if (didChangeConfigurationListener) {
+        this.context.subscriptions.push(didChangeConfigurationListener);
+        this.configurationRegistered = true;
+      }
     }
-    const config = vscode.workspace.getConfiguration(tag.name);
-    const targetLogsRecord = config.get<Record<string, LogConfig>>(tag.scheme);
+    await this.configManager.updateConfiguration(tag.name, async (config) => {
+      await this.setupEditedConfiguration();
 
-    if (!targetLogsRecord) { return; }
+      const targetLogsRecord =
+        this.configManager.getValue<Record<string, LogConfig>>(
+          config, tag.scheme.rules
+        );
+      if (!targetLogsRecord) { return; }
 
-    this.targetLogs.clear();
+      this.targetLogs.clear();
 
-    Object.entries(targetLogsRecord).map<[string, LogConfig]>(([name, log]) =>
-      [name, { ...log }] as [string, LogConfig]
-    ).forEach(([k, v]) =>
-      this.targetLogs.set(k, v)
-    );
+      this.configManager.recordToArray(targetLogsRecord).forEach(([k, v]) =>
+        this.targetLogs.set(k, v)
+      );
+    });
+  }
+
+  private async setupEditedConfiguration(): Promise<void> {
+    const targetLogsEdited =
+      this.configManager.getValue<Record<string, string>>(
+        tag.name, tag.scheme.edit
+      );
+    if (!targetLogsEdited) { return; }
+    if (!this.configManager.configurationWasChanged(tag.scheme.edit)) {
+      return;
+    }
+    const targetLogs = this.configManager.recordToArray<string>(targetLogsEdited)
+                                         .flatMap(([names, rules]) => {
+      const splittedName = names.split(":").map((name) => name.trim());
+      const splittedRule = rules.split(",").map((rule) => rule.trim());
+
+      if (splittedName.length < 2 || splittedRule.length <= 0) { return []; }
+
+      const doc = splittedName[0];
+      const name = splittedName[1];
+      const include = splittedRule.filter((rule) => !rule.startsWith("!"));
+      const exclude = splittedRule.filter((rule) => rule.startsWith("!"))
+                                  .map((r) => r.substring(1));
+  
+      return [{ [doc]: {name: name, show: include, exclude: exclude} }];
+    }).reduce((prev, curr) => {
+      return { ...prev, ...curr };
+    }, {} as Record<string, LogConfig>);
+
+    const target = targetLogs as Record<string, LogConfig>;
+    await this.configManager.setValue(tag.name, tag.scheme.rules, target);
   }
   
   private registerShowLogCommand(): vscode.Disposable {

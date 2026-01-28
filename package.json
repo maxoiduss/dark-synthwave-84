@@ -53,11 +53,18 @@
     "configuration": {
       "title": "Dark SynthWave '84",
       "properties": {
+        "output.filter.edit.rules": {
+          "type": "object",
+          "title": "Edit",
+          "markdownDescription": "For advanced rules, [Edit in settings.json](command:workbench.action.openSettingsJson)",
+          "additionalProperties": {
+            "type": "string"
+          }
+        },
         "output.filter.rules": {
           "type": "object",
-          "title": "Filter",
-          "description": "Rules for log filtering",
-          "markdownDescription": "Output Filter: Rules. \nConfigure the log filtering logic here.",
+          "title": "Rules",
+          "description": "Rules for Output log filtering. In a raw view. Remember that you still need to paste the rule manually in the Filter box. Make empty copy to get the rule in the clipboard.",
           "additionalProperties": {
             "type": "object",
             "properties": {
@@ -68,12 +75,14 @@
               "show": {
                 "type": "array",
                 "description": "List of fields to show",
-                "items": { "type": "string" }
+                "items": { "type": "string" },
+                "uniqueItems": true
               },
               "exclude": {
                 "type": "array",
                 "description": "List of fields to exclude",
-                "items": { "type": "string" }
+                "items": { "type": "string" },
+                "uniqueItems": true
               }
             },
             "required": [
@@ -81,25 +90,6 @@
               "show",
               "exclude"
             ]
-          },
-          "default": {
-            "main": {
-              "name": "Main",
-              "show": [
-                "error",
-                "warning"
-              ],
-              "exclude": [
-                "pid"
-              ]
-            },
-            "shared": {
-              "name": "Shared",
-              "show": [
-                "ERR_"
-              ],
-              "exclude": []
-            }
           }
         }
       }
