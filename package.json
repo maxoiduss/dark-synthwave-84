@@ -53,43 +53,12 @@
     "configuration": {
       "title": "Dark SynthWave '84",
       "properties": {
-        "output.filter.edit.rules": {
-          "type": "object",
-          "title": "Edit",
-          "markdownDescription": "For advanced rules, [Edit in settings.json](command:workbench.action.openSettingsJson)",
-          "additionalProperties": {
-            "type": "string"
-          }
-        },
         "output.filter.rules": {
           "type": "object",
-          "title": "Rules",
-          "description": "Rules for Output log filtering. In a raw view. Remember that you still need to paste the rule manually in the Filter box. Make empty copy to get the rule in the clipboard.",
+          "title": "Edit",
+          "markdownDescription": "\n\n Rules for Output log filtering\n\n  \n It's the rules to show or exclude messages (value name, non empty, comma-separated, e.g., `'error, !warning'`). Item name consists of *doc name* and *channel name* (colon-separated, e.g., `'main : Main'`). To guess the name of a doc of a channel, use  `'Open Output in Editor'`  command and `'Select an element' (Ctrl+Shift+C)` in *Dev Tools*. \n\n \n **Remember** that you still need to **paste the rule manually** in the Filter box. Make empty `Copy (Ctrl+C)` to get the rule in the clipboard. \n\n \n You can edit rules here or [Edit in settings.json](command:workbench.action.openSettingsJson) *(*Also modified in* [*User*](command:workbench.action.openSettingsJson) *and* [*Workspace*](command:workbench.action.openWorkspaceSettingsFile))*",
           "additionalProperties": {
-            "type": "object",
-            "properties": {
-              "name": {
-                "type": "string",
-                "description": "Unique name for this log"
-              },
-              "show": {
-                "type": "array",
-                "description": "List of fields to show",
-                "items": { "type": "string" },
-                "uniqueItems": true
-              },
-              "exclude": {
-                "type": "array",
-                "description": "List of fields to exclude",
-                "items": { "type": "string" },
-                "uniqueItems": true
-              }
-            },
-            "required": [
-              "name",
-              "show",
-              "exclude"
-            ]
+            "type": "string"
           }
         }
       }

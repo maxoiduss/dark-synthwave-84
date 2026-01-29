@@ -13,8 +13,7 @@ const empty = '';
 const tag = {
   name: "output.filter",
   scheme: {
-    rules: "rules",
-    edit: "edit.rules"
+    rules: "rules"
   }
 };
 
@@ -24,16 +23,9 @@ export class OutputFilterHandler implements vscode.Disposable {
   private copyRegistered: boolean = false;
   private pasteRegistered: boolean = false;
   private configurationRegistered: boolean = false;
-  private configurationUpdating: boolean = false;
   private lastCopiedText: string = empty;
   private dismissNotification: (() => void) | undefined;
-  private targetLogsPlaceholder: Record<string, LogConfig> =
-    { "main": { name: "Main", show: ["warning", "error"], exclude: [] } };
-  /*private targetLogsRecord: Record<string, LogConfig> = {
-    "main": { name: "Main", show: ["warning", "error"], exclude: [] },
-    "exthost": { name: "Extension Host", show: [], exclude: ["github.copilot-chat", "claude-code"] },
-    "rendererLog": { name: "Window", show: [], exclude: ["typescript-explorer"] }
-  }*/
+
   private readonly targetLogs: Map<string, LogConfig> = new Map();
   private readonly configManager: ConfigurationManager =
     ConfigurationManager.getInstance(tag.name);
@@ -70,42 +62,62 @@ export class OutputFilterHandler implements vscode.Disposable {
     OutputFilterHandler.subscriptions.clear();
   }
 
-  private async updateConfiguration(
+  private checkConfigListener(
     didChangeConfigurationListener?: vscode.Disposable
-  ): Promise<void> {
+  ) {
     if (!this.configurationRegistered) {
       if (didChangeConfigurationListener) {
         this.context.subscriptions.push(didChangeConfigurationListener);
         this.configurationRegistered = true;
       }
     }
-    await this.configManager.updateConfiguration(tag.name, async (config) => {
-      await this.setupEditedConfiguration();
-
-      const targetLogsRecord =
-        this.configManager.getValue<Record<string, LogConfig>>(
-          config, tag.scheme.rules
-        );
-      if (!targetLogsRecord) { return; }
-
-      this.targetLogs.clear();
-
-      this.configManager.recordToArray(targetLogsRecord).forEach(([k, v]) =>
-        this.targetLogs.set(k, v)
-      );
-    });
   }
 
-  private async setupEditedConfiguration(): Promise<void> {
-    const targetLogsEdited =
-      this.configManager.getValue<Record<string, string>>(
-        tag.name, tag.scheme.edit
-      );
-    if (!targetLogsEdited) { return; }
-    if (!this.configManager.configurationWasChanged(tag.scheme.edit)) {
-      return;
-    }
-    const targetLogs = this.configManager.recordToArray<string>(targetLogsEdited)
+  private async updateConfiguration(
+    didChangeConfigurationListener?: vscode.Disposable
+  ): Promise<void> {
+    this.checkConfigListener(didChangeConfigurationListener);
+    const configNames = (): [string, string] => [tag.name, tag.scheme.rules];
+
+    await this.configManager.makeUpdateConfiguration(configNames,
+      async (configTarget): Promise<Record<string, string>> =>
+      {
+        const targetLogsStrings =
+          this.configManager.getValue<Record<string, string>>(
+            configNames()[0], configNames()[1], configTarget
+          );
+        if (!targetLogsStrings) { return {}; }
+
+        const targetLogs = await this.parseRulesConfiguration(
+          targetLogsStrings
+        );
+        if (!targetLogs) { return {}; }
+
+        const logs = this.configManager.recordToArray(targetLogs);
+        const rules: [string, string][] = logs.map(([name, log]) =>
+          [`${name}:${log.name}`, this.simplifyLogConfig(log)]
+        );
+        const validatedRules = this.validateRules(rules);
+        this.refreshTargetLogsBy(logs);
+
+        return Object.fromEntries(validatedRules);
+      }
+    );
+  }
+
+  private validateRules(rules: [string, string][]): [string, string][] {
+    return rules.filter(([_, rule]) => rule !== empty);
+  }
+
+  private refreshTargetLogsBy(source: [string, LogConfig][]) {
+    this.targetLogs.clear();
+    source.forEach(([k, v]) => this.targetLogs.set(k, v));
+  }
+
+  private async parseRulesConfiguration(
+    rulesConfig: Record<string, string>
+  ): Promise<Record<string, LogConfig> | undefined> {
+    const targetLogs = this.configManager.recordToArray<string>(rulesConfig)
                                          .flatMap(([names, rules]) => {
       const splittedName = names.split(":").map((name) => name.trim());
       const splittedRule = rules.split(",").map((rule) => rule.trim());
@@ -123,8 +135,7 @@ export class OutputFilterHandler implements vscode.Disposable {
       return { ...prev, ...curr };
     }, {} as Record<string, LogConfig>);
 
-    const target = targetLogs as Record<string, LogConfig>;
-    await this.configManager.setValue(tag.name, tag.scheme.rules, target);
+    return targetLogs as Record<string, LogConfig>;
   }
   
   private registerShowLogCommand(): vscode.Disposable {
@@ -153,11 +164,6 @@ export class OutputFilterHandler implements vscode.Disposable {
     this.context.subscriptions.push(show);
 
     return show;
-  }
-  
-  private closeNotification() {
-    this.dismissNotification?.();
-    this.dismissNotification = undefined;
   }
   
   private registerCopyCommand(): vscode.Disposable {
@@ -211,8 +217,13 @@ export class OutputFilterHandler implements vscode.Disposable {
     )
     context.subscriptions.push(paste);
   }
-  
-  async showCanOpenSettings(): Promise<void> {
+    
+  private closeNotification() {
+    this.dismissNotification?.();
+    this.dismissNotification = undefined;
+  }
+
+  private async showCanOpenSettings(): Promise<void> {
     const yes = "Yes";
     const answer = await window.showInformationMessage(
       "You can check the rules in settings. Open settings?", yes, "No");
@@ -223,13 +234,18 @@ export class OutputFilterHandler implements vscode.Disposable {
       );
     }
   }
-  
-  private async sendToClipboardAndNotify(config: LogConfig): Promise<void> {
+
+  private simplifyLogConfig(config: LogConfig): string {
     const comma = ", ";
     const exclude = config.exclude.length > 0 && config.exclude[0].length > 0 ?
       `!${config.exclude.join(`${comma}!`)}` : empty;
     const include = config.show.join(comma);
-    const text = [include, exclude].filter(Boolean).join(comma);
+    
+    return [include, exclude].filter(Boolean).join(comma);
+  }
+  
+  private async sendToClipboardAndNotify(config: LogConfig): Promise<void> {
+    const text = this.simplifyLogConfig(config);
     await vscode.env.clipboard.writeText(text);
   
     return window.withProgress({
