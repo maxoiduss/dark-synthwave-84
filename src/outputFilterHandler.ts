@@ -2,6 +2,7 @@ import * as vscode from "vscode";
 import { window } from "vscode";
 import { brand } from "./hiddenExtensionsProvider";
 import { ConfigurationManager } from "./configurationManager";
+import { ExtensionBrandResolver } from "./extensionBrandResolver";
 
 interface LogConfig {
   name: string;
@@ -228,10 +229,7 @@ export class OutputFilterHandler implements vscode.Disposable {
     const answer = await window.showInformationMessage(
       "You can check the rules in settings. Open settings?", yes, "No");
     if (answer === yes) {
-      await vscode.commands.executeCommand(
-        "workbench.action.openSettings",
-        `@ext:${this.context.extension.id}`
-      );
+      await ExtensionBrandResolver.openSettings();
     }
   }
 

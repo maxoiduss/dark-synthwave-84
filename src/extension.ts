@@ -3,9 +3,13 @@ import { ActivityBarHandler } from "./activityBarHandler";
 import { noRealDocOpened, ExtensionPageHandler } from "./extensionPageHandler";
 import { brand, HiddenExtensionsProvider } from "./hiddenExtensionsProvider";
 import { OutputFilterHandler } from "./outputFilterHandler";
+import { ExtensionBrandResolver } from "./extensionBrandResolver";
 
 export function activate(context: vscode.ExtensionContext) {
   ActivityBarHandler.create();
+
+  const resolver = new ExtensionBrandResolver(context);
+  resolver.getBrand();
 
   const toggleRegistered = vscode.commands.registerCommand(
     ActivityBarHandler.commandName,
@@ -37,6 +41,6 @@ export function activate(context: vscode.ExtensionContext) {
   context.subscriptions.push(outputFilterHandler);
 }
 
-export function deactivate(context: vscode.ExtensionContext) {
+export function deactivate(_context: vscode.ExtensionContext) {
   ActivityBarHandler.dispose();
 }
