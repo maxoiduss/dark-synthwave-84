@@ -1,18 +1,18 @@
 import * as vscode from "vscode";
 import { ActivityBarHandler } from "./activityBarHandler";
 import { noRealDocOpened, ExtensionPageHandler } from "./extensionPageHandler";
-import { brand, HiddenExtensionsProvider } from "./hiddenExtensionsProvider";
+import { HiddenExtensionsProvider } from "./hiddenExtensionsProvider";
 import { OutputFilterHandler } from "./outputFilterHandler";
-import { commands, ExtensionBrandResolver } from "./extensionBrandResolver";
+import { brand, commands, ExtensionBrandResolver } from "./extensionBrandResolver";
 
 export function activate(context: vscode.ExtensionContext) {
-  ActivityBarHandler.create();
-
   const resolver = new ExtensionBrandResolver(context);
-  resolver.getBrand();
-
+  resolver.resolve();
+  
+  ActivityBarHandler.create();
+  
   const toggleRegistered = vscode.commands.registerCommand(
-    ActivityBarHandler.commandName,
+    brand.showActivityBar,
     () => vscode.commands.executeCommand(
       commands.toggleActivityBarVisibility
     )
@@ -21,7 +21,7 @@ export function activate(context: vscode.ExtensionContext) {
 
   const extensionPageHandler = new ExtensionPageHandler();
   const aimRegistered = vscode.commands.registerCommand(
-    `${brand}.aimFile`,
+    brand.aimFile,
     async () => noRealDocOpened() ?
       await extensionPageHandler.openExtensionPage()
     : await vscode.commands.executeCommand(
@@ -32,7 +32,7 @@ export function activate(context: vscode.ExtensionContext) {
 
   const hiddenExtensionsProvider = new HiddenExtensionsProvider(context);
   const webviewRegistered = vscode.window.registerWebviewViewProvider(
-    "hiddenView",
+    ExtensionBrandResolver.webview,
     hiddenExtensionsProvider
   );
   context.subscriptions.push(webviewRegistered);

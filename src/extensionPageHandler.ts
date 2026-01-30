@@ -1,5 +1,13 @@
 import * as vscode from "vscode";
-import { commands, ExtensionBrandResolver } from "./extensionBrandResolver";
+import {
+  commands,
+  ExtensionBrandResolver
+} from "./extensionBrandResolver";
+
+const text = {
+  settings: "Open Settings",
+  extensions: "Show Running Extensions"
+} as const;
 
 export function noRealDocOpened() {
   return vscode.window.activeTextEditor?.document?.fileName ?
@@ -10,7 +18,8 @@ export function noRealDocOpened() {
 export class ExtensionPageHandler {
   public async openExtensionPage() {
     if (!vscode.workspace.name) {
-      vscode.window.showWarningMessage("There is no opened project.");
+      const noProjectText = "There is no opened project.";
+      vscode.window.showWarningMessage(noProjectText);
       return;
     }
 
@@ -28,16 +37,14 @@ export class ExtensionPageHandler {
         extension?.id ?? project
       );
     } catch (error) {
-      const settings = "Open Settings";
-      const extensions = "Show Running Extensions";
       const answer = await vscode.window.showWarningMessage(
         `There is no such extension: ${extension?.id ?? project}`,
-        settings,
-        extensions
+        text.settings,
+        text.extensions
       );
-      if (answer === settings) {
+      if (answer === text.settings) {
         ExtensionBrandResolver.openSettings();
-      } else if (answer === extensions) {
+      } else if (answer === text.extensions) {
         ExtensionBrandResolver.openRunningExtensions()
       }
     }

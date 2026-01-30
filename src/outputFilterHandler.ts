@@ -1,8 +1,11 @@
 import * as vscode from "vscode";
 import { window } from "vscode";
-import { brand } from "./hiddenExtensionsProvider";
 import { ConfigurationManager } from "./configurationManager";
-import { commands, ExtensionBrandResolver } from "./extensionBrandResolver";
+import {
+  brand,
+  commands,
+  ExtensionBrandResolver
+} from "./extensionBrandResolver";
 
 interface LogConfig {
   name: string;
@@ -10,17 +13,17 @@ interface LogConfig {
   exclude: string[];
 }
 
-const empty = '';
 const tag = {
   name: "output.filter",
   scheme: {
     rules: "rules"
   }
 };
+const empty = '';
 
 export class OutputFilterHandler implements vscode.Disposable {
-  private static readonly subscriptions: Map<number, vscode.Disposable> = new Map();
-
+  private static readonly subscriptions: Map<number, vscode.Disposable> =
+    new Map();
   private copyRegistered: boolean = false;
   private pasteRegistered: boolean = false;
   private configurationRegistered: boolean = false;
@@ -130,7 +133,6 @@ export class OutputFilterHandler implements vscode.Disposable {
       const include = splittedRule.filter((rule) => !rule.startsWith("!"));
       const exclude = splittedRule.filter((rule) => rule.startsWith("!"))
                                   .map((r) => r.substring(1));
-  
       return [{ [doc]: {name: name, show: include, exclude: exclude} }];
     }).reduce((prev, curr) => {
       return { ...prev, ...curr };
@@ -140,12 +142,13 @@ export class OutputFilterHandler implements vscode.Disposable {
   }
   
   private registerShowLogCommand(): vscode.Disposable {
-    const show = vscode.commands.registerCommand(
-      `${brand}.showOutputLog`,
+    const show = vscode.commands.registerCommand(brand.showOutputLog,
       async () => {
         this.lastCopiedText = await vscode.env.clipboard.readText();
   
-        const logNames = Array.from(this.targetLogs.values()).map((log) => log.name);
+        const logNames = Array
+          .from(this.targetLogs.values())
+          .map((log) => log.name);
         const selected = await window.showQuickPick(
           logNames, { title: "Choose the Output channel"}
         );
@@ -262,7 +265,9 @@ export class OutputFilterHandler implements vscode.Disposable {
     });
   }
   
-  private getLogTarget(doc: vscode.TextDocument | undefined): boolean | LogConfig {
+  private getLogTarget(
+    doc: vscode.TextDocument | undefined
+  ): boolean | LogConfig {
     if (!doc) { return false; }
   
     if (this.targetLogs.has(doc.fileName)) {

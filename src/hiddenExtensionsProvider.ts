@@ -1,8 +1,6 @@
 import * as vscode from "vscode";
-import { WebviewView } from "vscode";
-import { commands } from "./extensionBrandResolver";
-
-export const brand: string = "dark-synthwave";
+import { WebviewView, WebviewViewProvider } from "vscode";
+import { brand, commands } from "./extensionBrandResolver";
 
 const keyWordForHiddens = "@builtin";
 const empty = '';
@@ -17,7 +15,7 @@ function getNonce() {
   return text;
 }
 
-export class HiddenExtensionsProvider implements vscode.WebviewViewProvider {
+export class HiddenExtensionsProvider implements WebviewViewProvider {
   private view: WebviewView | undefined;
   private registered: boolean = false;
   private lastViewVisibleValue: boolean = false;
@@ -44,12 +42,15 @@ export class HiddenExtensionsProvider implements vscode.WebviewViewProvider {
 
   private async hideHiddenExtensions() {
     this.updateWebview(this.collapseView);
-    await vscode.commands.executeCommand(commands.extensionsSearch, empty);
+    await vscode.commands.executeCommand(
+      commands.extensionsSearch,
+      empty
+    );
   }
 
   private setDefaults() {
     if (this.view) {
-      if (this.view.webview.html === "" || undefined) {
+      if (this.view.webview.html === empty || undefined) {
         this.updateWebview();
       }
       this.view.webview.options = {
@@ -62,13 +63,13 @@ export class HiddenExtensionsProvider implements vscode.WebviewViewProvider {
     if (this.registered) { return; }
     
     const showExtensions = vscode.commands.registerCommand(
-      `${brand}.showBuiltinFeatures`,
+      brand.showBuiltinFeatures,
       () => {
         this.showHiddenExtensions();
       }
     );
     const hideExtensions = vscode.commands.registerCommand(
-      `${brand}.hideBuiltinFeatures`,
+      brand.hideBuiltinFeatures,
       () => {
         this.hideHiddenExtensions();
       }

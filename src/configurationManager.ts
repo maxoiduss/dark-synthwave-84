@@ -1,20 +1,36 @@
 import * as vscode from "vscode";
 import { ConfigurationTarget } from "vscode";
 
-const empty: {} = {} as const;
 const busy: string = "busy" as const;
 const free: string = "free" as const;
-type busy_or_free = typeof busy | typeof free;
+const empty: {} = {} as const;
+
+type BusyOrFree = typeof busy | typeof free;
 type Empty = typeof empty;
 
 function isEmpty(object: any) {
   return JSON.stringify(object) === JSON.stringify(empty)
 }
 
+async function doesWorkspaceSettingsExist(): Promise<boolean> {
+  const folders = vscode.workspace.workspaceFolders;
+  if (!folders) return false;
+
+  const settingsUri = vscode.Uri.joinPath(
+    folders[0].uri, ".vscode", "settings.json"
+  );
+  try {
+      await vscode.workspace.fs.stat(settingsUri);
+      return true;
+  } catch {
+      return false;
+  }
+}
+
 export class ConfigurationManager {
   private readonly changed: vscode.Event<vscode.ConfigurationChangeEvent> =
     vscode.workspace.onDidChangeConfiguration;
-  private readonly configurations: Map<string, busy_or_free> = new Map();
+  private readonly configurations: Map<string, BusyOrFree> = new Map();
 
   private static instance: ConfigurationManager;
   public static getInstance(configuration: string): ConfigurationManager {
@@ -54,11 +70,15 @@ export class ConfigurationManager {
     }
     this.configurations.set(configuration, busy);
     
+    const workspaceSettingsExist = await doesWorkspaceSettingsExist();
     const updateThenSet = async (on: ConfigurationTarget): Promise<T> =>
     {
       const onScope = on;
       const value = await update(onScope);
 
+      if (!workspaceSettingsExist && isEmpty(value)) {
+        return value;
+      }
       if (setter === this.setValue && section) {
         await this.setValue(configuration, section, on, value);
       } else {
