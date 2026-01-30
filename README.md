@@ -24,6 +24,12 @@ If this theme is too much, then I recommend [Horizon](https://github.com/jolaley
 ## Thanks from Me
 Thank you [Robb](https://github.com/robb0wen)
 
+### 1.0.3
+
+ - New `Reveal File or Extension` feature, can show *extension's settings* otherwise
+
+ - `Output Filter Handling` command and *rules* in the settings
+
 ### 1.0.2
 
  - New and *Fixed* `Hidden Extensions` section
@@ -37,5 +43,3 @@ Thank you [Robb](https://github.com/robb0wen)
 ## For more information
 
 **Visit  -  [Github](https://github.com/maxoiduss)**
-
-***Hell  Dell***
