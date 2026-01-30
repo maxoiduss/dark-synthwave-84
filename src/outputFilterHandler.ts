@@ -2,7 +2,7 @@ import * as vscode from "vscode";
 import { window } from "vscode";
 import { brand } from "./hiddenExtensionsProvider";
 import { ConfigurationManager } from "./configurationManager";
-import { ExtensionBrandResolver } from "./extensionBrandResolver";
+import { commands, ExtensionBrandResolver } from "./extensionBrandResolver";
 
 interface LogConfig {
   name: string;
@@ -152,14 +152,14 @@ export class OutputFilterHandler implements vscode.Disposable {
         if (!selected) { return; }
   
         await vscode.env.clipboard.writeText(selected);
-        const openLog = vscode.commands.executeCommand("workbench.action.showLogs");
-        await vscode.commands.executeCommand("editor.action.clipboardPasteAction");
-        await vscode.commands.executeCommand("quickInput.accept");
+        const openLog = vscode.commands.executeCommand(commands.showLogs);
+        await vscode.commands.executeCommand(commands.clipboardPasteAction);
+        await vscode.commands.executeCommand(commands.quickInputAccept);
         await vscode.env.clipboard.writeText(this.lastCopiedText);
         await openLog;
-        await vscode.commands.executeCommand("workbench.panel.output.focus");
-        await new Promise((resolve) => setTimeout(resolve, 100));
-        await vscode.commands.executeCommand("editor.action.clipboardCopyAction");
+        await vscode.commands.executeCommand(commands.outputFocus);
+        await new Promise((resolve) => setTimeout(resolve, 50));
+        await vscode.commands.executeCommand(commands.clipboardCopyAction);
       }
     )
     this.context.subscriptions.push(show);
@@ -212,7 +212,7 @@ export class OutputFilterHandler implements vscode.Disposable {
         this.pasteRegistered = false;
         this.closeNotification();
   
-        await vscode.commands.executeCommand("editor.action.clipboardPasteAction");
+        await vscode.commands.executeCommand(commands.clipboardPasteAction);
         await vscode.env.clipboard.writeText(this.lastCopiedText);
       }
     )

@@ -1,4 +1,5 @@
 import * as vscode from "vscode";
+import { commands, ExtensionBrandResolver } from "./extensionBrandResolver";
 
 export function noRealDocOpened() {
   return vscode.window.activeTextEditor?.document?.fileName ?
@@ -21,9 +22,24 @@ export class ExtensionPageHandler {
       || ext.packageJSON?.name.endsWith(project)
     );
 
-    await vscode.commands.executeCommand(
-      "extension.open", 
-      extension?.id ?? project
-    );
+    try {
+      await vscode.commands.executeCommand(
+        commands.extensionOpen, 
+        extension?.id ?? project
+      );
+    } catch (error) {
+      const settings = "Open Settings";
+      const extensions = "Show Running Extensions";
+      const answer = await vscode.window.showWarningMessage(
+        `There is no such extension: ${extension?.id ?? project}`,
+        settings,
+        extensions
+      );
+      if (answer === settings) {
+        ExtensionBrandResolver.openSettings();
+      } else if (answer === extensions) {
+        ExtensionBrandResolver.openRunningExtensions()
+      }
+    }
   }
 }

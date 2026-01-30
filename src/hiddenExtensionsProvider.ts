@@ -1,13 +1,14 @@
 import * as vscode from "vscode";
 import { WebviewView } from "vscode";
+import { commands } from "./extensionBrandResolver";
 
 export const brand: string = "dark-synthwave";
 
 const keyWordForHiddens = "@builtin";
-const nonce = getNonce();
+const empty = '';
 
 function getNonce() {
-  let text = "";
+  let text = empty;
   const possible =
     "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789";
   for (let i = 0; i < 32; i++) {
@@ -19,31 +20,42 @@ function getNonce() {
 export class HiddenExtensionsProvider implements vscode.WebviewViewProvider {
   private view: WebviewView | undefined;
   private registered: boolean = false;
-  private lastVisibleValue: boolean = false;
-  private readonly hideCommandText = "hideHidden";
-  private readonly searchCommandName = "workbench.extensions.search";
-  private readonly unfocusCommandName =
-    "workbench.action.focusActiveEditorGroup";
+  private lastViewVisibleValue: boolean = false;
+  private cspSourceDefault!: string;
+  private readonly hide = "hideHidden";
+  private readonly collapseView = "collapse view to stop show";
+  private readonly unfocus = commands.focusActiveEditorGroup;
 
   constructor(private readonly context: vscode.ExtensionContext) {
     this.registerCommands();
   }
 
   private async unfocusExtensionsSearch() {
-    await vscode.commands.executeCommand(this.unfocusCommandName);
+    await vscode.commands.executeCommand(this.unfocus);
   }
 
   private async showHiddenExtensions() {
     this.updateWebview();
     await vscode.commands.executeCommand(
-      this.searchCommandName,
+      commands.extensionsSearch,
       keyWordForHiddens
     );
   }
 
   private async hideHiddenExtensions() {
-    this.updateWebview("collapse view to stop show");
-    await vscode.commands.executeCommand(this.searchCommandName, "");
+    this.updateWebview(this.collapseView);
+    await vscode.commands.executeCommand(commands.extensionsSearch, empty);
+  }
+
+  private setDefaults() {
+    if (this.view) {
+      if (this.view.webview.html === "" || undefined) {
+        this.updateWebview();
+      }
+      this.view.webview.options = {
+        enableScripts: true,
+      };
+    }
   }
 
   public registerCommands() {
@@ -71,41 +83,46 @@ export class HiddenExtensionsProvider implements vscode.WebviewViewProvider {
     _context: vscode.WebviewViewResolveContext<unknown>,
     _token: vscode.CancellationToken
   ): void | Thenable<void> {
-    webviewView.webview.options = {
-      enableScripts: true,
-    };
-    this.view = webviewView;
-    this.updateWebview();
+    const view = webviewView;
+    this.view = view;
+    this.cspSourceDefault = view.webview.cspSource;
 
     const visibilityTimeout = 100;
 
-    webviewView.webview.onDidReceiveMessage(async (message) => {
-      if (message.command === this.hideCommandText) {
+    view.webview.onDidReceiveMessage(async (message) => {
+      if (message.command === this.hide) {
         await this.hideHiddenExtensions();
         await this.unfocusExtensionsSearch();
       }
     });
-    webviewView.onDidChangeVisibility(() => {
+    view.onDidChangeVisibility(() => {
       setTimeout(async () => {
-        if (this.lastVisibleValue !== webviewView.visible) {
-          this.lastVisibleValue = webviewView.visible;
-          if (this.lastVisibleValue) {
+        if (this.lastViewVisibleValue !== view.visible) {
+          this.lastViewVisibleValue = view.visible;
+          if (this.lastViewVisibleValue) {
             await this.showHiddenExtensions();
             await this.unfocusExtensionsSearch();
           }
         }
       }, visibilityTimeout);
     });
+    this.updateWebview();
+    this.setDefaults();
   }
 
   public updateWebview(withText: string = "Hide Builtin Features") {
-    if (!this.view) {
-      return;
-    }
+    if (!this.view) { return; }
     
-    const csp = `default-src 'none'; img-src ${this.view?.webview.cspSource} blob:;
-      style-src 'nonce-${nonce}' ${this.view?.webview.cspSource}; script-src 'nonce-${nonce}';`;
-
+    const nonce = getNonce();
+    const cspSource = this.cspSourceDefault;
+    const csp = [
+      `default-src 'none'`,
+      `script-src 'nonce-${nonce}' ${cspSource}`,
+      `style-src 'nonce-${nonce}' ${cspSource} 'unsafe-inline'`,
+      `frame-src ${cspSource} blob: data:`,
+      `connect-src ${cspSource} https: http://localhost:* http://127.0.0.1:*`
+    ].join("; ");
+  
     this.view.webview.html = `<!DOCTYPE html>
     <html lang="en">
     <head>
@@ -143,7 +160,7 @@ export class HiddenExtensionsProvider implements vscode.WebviewViewProvider {
       <script nonce='${nonce}' type='module'>
         const vscode = acquireVsCodeApi();
         document.getElementById('showBtn').addEventListener('click', () => {
-          vscode.postMessage({ command: '${this.hideCommandText}' });
+          vscode.postMessage({ command: '${this.hide}' });
         });
       </script>
     </body>

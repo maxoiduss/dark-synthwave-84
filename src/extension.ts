@@ -3,7 +3,7 @@ import { ActivityBarHandler } from "./activityBarHandler";
 import { noRealDocOpened, ExtensionPageHandler } from "./extensionPageHandler";
 import { brand, HiddenExtensionsProvider } from "./hiddenExtensionsProvider";
 import { OutputFilterHandler } from "./outputFilterHandler";
-import { ExtensionBrandResolver } from "./extensionBrandResolver";
+import { commands, ExtensionBrandResolver } from "./extensionBrandResolver";
 
 export function activate(context: vscode.ExtensionContext) {
   ActivityBarHandler.create();
@@ -14,7 +14,7 @@ export function activate(context: vscode.ExtensionContext) {
   const toggleRegistered = vscode.commands.registerCommand(
     ActivityBarHandler.commandName,
     () => vscode.commands.executeCommand(
-      "workbench.action.toggleActivityBarVisibility"
+      commands.toggleActivityBarVisibility
     )
   );
   context.subscriptions.push(toggleRegistered);
@@ -25,7 +25,7 @@ export function activate(context: vscode.ExtensionContext) {
     async () => noRealDocOpened() ?
       await extensionPageHandler.openExtensionPage()
     : await vscode.commands.executeCommand(
-        "workbench.files.action.showActiveFileInExplorer"
+        commands.showActiveFileInExplorer
       )
   );
   context.subscriptions.push(aimRegistered);
