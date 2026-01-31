@@ -1,4 +1,5 @@
 # Dark Synthwave - VSC theme
+![Synthwave car logo over a synthmoon](./banner.png)
 
 Theme based on [Synthwave Robb 0wen theme](https://github.com/robb0wen/synthwave-vscode)
 
@@ -6,6 +7,7 @@ Theme based on [Synthwave Robb 0wen theme](https://github.com/robb0wen/synthwave
 But with no glowing effect - just a simple theme for work.
 You can find native syntax highlighting for top-most known languages such as
 Java, Python, Dart, C#, Kotlin, Swift, TypeScript, C++, Go and other.
+And also here is extra features like reveal file in the Explorer view or Extension if it's opened as project and installed and toggle show/hide Activity Bar button.
 
 ## Original theme
 
