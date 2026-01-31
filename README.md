@@ -1,4 +1,4 @@
-# Dark Synthwave '84 - VSC theme
+# Dark Synthwave - VSC theme
 
 Theme based on [Synthwave Robb 0wen theme](https://github.com/robb0wen/synthwave-vscode)
 
@@ -38,7 +38,7 @@ Thank you [Robb](https://github.com/robb0wen)
 
 ### 1.0.1
 
- - Initial release of  *`Dark Synthwave '84`*
+ - Initial release of  *`Dark Synthwave`*
 
 ## For more information
 
