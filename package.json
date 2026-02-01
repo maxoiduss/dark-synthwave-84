@@ -85,7 +85,7 @@
       },
       {
         "command": "dark-synthwave.aimFile",
-        "title": "Reveal file/extension",
+        "title": "Reveal File/Extension",
         "icon": {
           "dark": "resources/aimDark.svg",
           "light": "resources/aimLight.svg"
