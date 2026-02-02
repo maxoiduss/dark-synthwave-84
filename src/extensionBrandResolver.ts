@@ -19,12 +19,13 @@ export const commands = {
   showActiveFileInExplorer:
     "workbench.files.action.showActiveFileInExplorer",
   focusActiveEditorGroup: "workbench.action.focusActiveEditorGroup",
+  toggleFullScreen: "workbench.action.toggleFullScreen",
+  showLogs: "workbench.action.showLogs",
+  outputFocus: "workbench.panel.output.focus",
   extensionsSearch: "workbench.extensions.search",
   clipboardPasteAction: "editor.action.clipboardPasteAction",
   clipboardCopyAction: "editor.action.clipboardCopyAction",
-  outputFocus: "workbench.panel.output.focus",
   quickInputAccept: "quickInput.accept",
-  showLogs: "workbench.action.showLogs",
   extensionOpen: "extension.open"
 } as const;
 

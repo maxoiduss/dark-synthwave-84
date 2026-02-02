@@ -9,15 +9,9 @@ export function activate(context: vscode.ExtensionContext) {
   const resolver = new ExtensionBrandResolver(context);
   resolver.resolve();
   
-  ActivityBarHandler.create();
-  
-  const toggleRegistered = vscode.commands.registerCommand(
-    brand.showActivityBar,
-    () => vscode.commands.executeCommand(
-      commands.toggleActivityBarVisibility
-    )
-  );
-  context.subscriptions.push(toggleRegistered);
+  const toggleRegistered = ActivityBarHandler.create();
+  toggleRegistered ? 
+    context.subscriptions.push(toggleRegistered) : {};
 
   const extensionPageHandler = new ExtensionPageHandler();
   const aimRegistered = vscode.commands.registerCommand(

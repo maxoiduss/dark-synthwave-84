@@ -172,7 +172,7 @@ export class OutputFilterHandler implements vscode.Disposable {
   
   private registerCopyCommand(): vscode.Disposable {
     const copy = vscode.commands.registerCommand(
-      "editor.action.clipboardCopyAction",
+      commands.clipboardCopyAction,
       async () => {
         const editor = window.activeTextEditor;
         if (!editor) { return; }
@@ -209,7 +209,7 @@ export class OutputFilterHandler implements vscode.Disposable {
     this.pasteRegistered = true;
   
     const paste = vscode.commands.registerCommand(
-      "editor.action.clipboardPasteAction",
+      commands.clipboardPasteAction,
       async () => {
         paste.dispose();
         this.pasteRegistered = false;

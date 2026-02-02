@@ -1,27 +1,90 @@
 import * as vscode from "vscode";
-import { brand } from "./extensionBrandResolver";
+import { brand, commands } from "./extensionBrandResolver";
 
+const unknownBarToggleIcon: string = "question";
 const activityBarToggleIcon: string = "layout-sidebar-left-dock";
+const unknownActivityBarText: string = "Fullscreen or Activity Bar";
 const showHideActivityBarText: string = "Show/Hide Activity Bar";
+const toggleFullScreenCommand: string = "Toggle Fullscreen";
+const toggleActivityBarCommand: string = "Toggle Activity Bar";
 
 export class ActivityBarHandler {
   private static activityBarToggle: vscode.StatusBarItem | undefined;
   private static disposed: boolean = false;
   private static created: boolean = false;
 
-  public static create() {
+  private static readonly timeGap: number = 200;
+
+  private static changeIconTo(state: { unknown: boolean }) {
+    const codicon = state.unknown ?
+      unknownBarToggleIcon
+    : activityBarToggleIcon;
+    this.activityBarToggle!.text = `$(${codicon})`;
+  }
+
+  private static changeTooltipTo(state: { unknown: boolean }) {
+    const tooltip = state.unknown ?
+      unknownActivityBarText
+    : showHideActivityBarText;
+    this.activityBarToggle!.tooltip = tooltip;
+  }
+  
+  private static async toggleFullscreenOrActivityBar() {
+    this.changeIconTo({ unknown: true });
+    this.changeTooltipTo({ unknown: true });
+
+    const picked = await vscode.window.showQuickPick([
+      toggleFullScreenCommand,
+      toggleActivityBarCommand
+      ], { title: "What to toggle?", canPickMany: false }
+    )
+    if (picked === toggleFullScreenCommand) {
+      vscode.commands.executeCommand(
+        commands.toggleFullScreen
+      );
+    }
+    if (picked === toggleActivityBarCommand) {
+      this.toggleActivityBar();
+    }
+    this.changeIconTo({ unknown: false });
+    this.changeTooltipTo({ unknown: false });
+  }
+
+  private static toggleActivityBar() {
+    vscode.commands.executeCommand(
+      commands.toggleActivityBarVisibility
+    );
+  }
+
+  public static create(): vscode.Disposable | undefined {
     if (this.created) { return; }
     
     this.activityBarToggle = vscode.window.createStatusBarItem(
       vscode.StatusBarAlignment.Left,
       100
     );
-    this.activityBarToggle.text = `$(${activityBarToggleIcon})`;
-    this.activityBarToggle.tooltip = showHideActivityBarText;
+    this.changeIconTo({ unknown: false });
+    this.changeTooltipTo({ unknown: false });
     this.activityBarToggle.command = brand.showActivityBar;
     this.activityBarToggle.show();
-
     this.created = true;
+
+    let callCount = 0;
+    let timeout: number;
+    const activityBarToggle = vscode.commands.registerCommand(
+      brand.showActivityBar,
+      () => {
+        callCount++;
+        clearTimeout(timeout);
+        timeout = setTimeout(() => {
+          callCount > 1 ?
+            this.toggleFullscreenOrActivityBar()
+          : this.toggleActivityBar();
+          callCount = 0;
+        }, this.timeGap);
+      }
+    );
+    return activityBarToggle;
   }
 
   public static dispose() {
