@@ -6,14 +6,17 @@ Theme based on [Synthwave Robb Owen theme](https://github.com/robb0wen/synthwave
 But with no glowing effect - just a simple theme for work with several extra features.
 You can find native syntax highlighting for top-most known languages such as
 Java, Python, Dart, C#, Kotlin, Swift, TypeScript, C++, Go and other.
-And also here are extra features like *Reveal File* in the Explorer view or *Extension* (if it's opened as project and installed) and Toggle *Show/Hide Activity Bar* button in the Status Bar.
-![features](./features.png)
 
-## Original theme
+![Languages](./languages.png)
+
+And also here are extra features like *Reveal File* in the Explorer view or *Extension* (if it's opened as project and installed) and Toggle *Show/Hide Activity Bar* button in the Status Bar.
+
+![Features](./features.png)
+## Original theme 🎨 
 
 Original theme according to Robb 0wen is influenced by the music and the cover artwork of modern Synthwave bands like FM-84, Timecop 1983 and The Midnight. By association, that means he's also taken heavy influence from the excellent [retro-tinged artwork of James White](https://signalnoise.com/).
 
-## Contributing original
+## Contributing original ✨
 It's for the original theme: before you make any changes, [please read the contribution guide](https://github.com/robb0wen/synthwave-vscode/blob/master/CONTRIBUTING.md).
 
 ## Thanks from Robb
@@ -24,7 +27,7 @@ It's for the original theme: before you make any changes, [please read the contr
 ## Thanks from Me
 >Thank you [Robb](https://github.com/robb0wen)
 
-## Changelog
+## Changelog 📜
 
 ### 1.0.4
 
