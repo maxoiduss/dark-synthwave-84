@@ -58,10 +58,11 @@
       "properties": {
         "output.filter.rules": {
           "type": "object",
-          "title": "Edit",
+          "title": "Rules",
           "markdownDescription": "\n\n Rules for Output log filtering\n\n  \n It's the rules to show or exclude messages (value name, non empty, comma-separated, e.g., `'error, !warning'`). Item name consists of *doc name* and *channel name* (colon-separated, e.g., `'main : Main'`). To guess the name of a doc of a channel, use  `'Open Output in Editor'`  command and `'Select an element' (Ctrl+Shift+C)` in *Dev Tools*. \n\n \n **Remember** that you still need to **paste the rule manually** in the Filter box. Make empty `Copy (Ctrl+C)` to get the rule in the clipboard. \n\n \n You can edit rules here or [Edit in settings.json](command:workbench.action.openSettingsJson) *(*Also modified in* [*User*](command:workbench.action.openSettingsJson) *and* [*Workspace*](command:workbench.action.openWorkspaceSettingsFile))*",
           "additionalProperties": {
-            "type": "string"
+            "type": "string",
+            "description": "key-value: a key is two strings colon-separated and a value is pattern for Filter, example: key is 'rendererLog:Window' and value is 'Window, !info'"
           }
         }
       }
