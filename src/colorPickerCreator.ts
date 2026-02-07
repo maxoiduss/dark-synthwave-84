@@ -14,6 +14,7 @@ export class ColorPickerCreator implements vscode.Disposable {
   private static created: vscode.Disposable;
 
   private cspSourceDefault!: string;
+  private notificationShown: boolean = false;
 
   constructor(private readonly context: ExtensionContext) { }
 
@@ -29,13 +30,24 @@ export class ColorPickerCreator implements vscode.Disposable {
             }
         );
         this.cspSourceDefault = panel.webview.cspSource;
-
         panel.webview.html = this.getWebviewContent();
-        panel.webview.onDidReceiveMessage((message) => {
+
+        const disposed = panel.onDidDispose(() => {
+          this.notificationShown = false;
+        });
+        const received = panel.webview.onDidReceiveMessage((message) => {
           if (message.command === commands.colorSelected) {
-            vscode.window.showInformationMessage(`Selected Color: ${message.value}`);
+            if (!this.notificationShown) {
+              const text = "You copied color to a clipboard.";
+              vscode.window.showInformationMessage(text);
+              this.notificationShown = true;
+            }
+            if (typeof message.value === "string") {
+              vscode.env.clipboard.writeText(message.value);
+            }
           }
         });
+        this.context.subscriptions.push(disposed, received);
       }
     );
     this.context.subscriptions.push(ColorPickerCreator.created);
@@ -48,8 +60,8 @@ export class ColorPickerCreator implements vscode.Disposable {
   private getWebviewContent() {
     const nonce = getNonce();
     const csp = getCSP(nonce, this.cspSourceDefault);
-    const hexId = "picker";
-    const inputId = "hex";
+    const hexId = "hex";
+    const inputId = "picker";
 
     return `<!DOCTYPE html>
       <html lang="en">
@@ -57,59 +69,67 @@ export class ColorPickerCreator implements vscode.Disposable {
         <meta charset="UTF-8">
         <meta http-equiv="Content-Security-Policy" content="${csp}">
         <meta name="viewport" content="width=device-width, initial-scale=1.0">
-        <style>
-          <style nonce="${nonce}"/>
+        <style nonce="${nonce}">
+          html, body {
+            height: 100%;
+            margin: 0;
+            padding: 0;
+            overflow: hidden;
+          }
           body {
             font-family: var(--vscode-font-family);
             font-size: var(--vscode-font-size);
             color: var(--vscode-foreground);
             background-color: var(--vscode-editor-background);
             display: flex;
+            align-items: stretch;
+            justify-content: stretch;
             flex-direction: column;
-            align-items: center;
-            justify-content: center;
-            height: 100vh;
-            margin: 0;
-            padding: 20px;
+            align-items: stretch;
+            box-sizing: border-box;
+            padding: 12px;
           }
-          h2 {
-            font-weight: normal;
-            font-size: 1.5rem;
-            margin-bottom: 20px;
-          }
-          #picker {
-            border: 1px solid var(--vscode-settings-headerBorder);
+          #${inputId} {
+            -webkit-appearance: none;
+            appearance: none;
             background: var(--vscode-input-background);
-            cursor: pointer;
+            box-sizing: border-box;
+            border: 1px solid var(--vscode-settings-headerBorder);
             border-radius: 4px;
-            padding: 4px;
+            cursor: pointer;
+            width: 100%;
+            height: 100%;
+            margin: 0;
+            padding: 0;
           }
-          #picker:focus {
+          #${inputId}::-webkit-color-swatch-wrapper {
+            padding: 0;
+          }
+          #${inputId}::-webkit-color-swatch {
+           border: none;
+           border-radius: 2px;
+           width: 100%;
+           height: 100%;
+          
+          #${inputId}:focus {
             outline: 1px solid var(--vscode-focusBorder);
-          }
-          #hex {
-            margin-top: 15px;
-            padding: 4px 8px;
-            font-family: var(--vscode-editor-font-family);
-            background-color: var(--vscode-textBlockQuote-background);
-            border-radius: 2px;
-            border: 1px solid var(--vscode-widget-border);
+            outline-offset: -2px;
           }
         </style>
       </head>
-      <body>
+      <body aria-label>
         <input type="color" id="${inputId}">
-        <p id="${hexId}">#000000</p>
-        <script nonce='${nonce}' type='module'  >
+        <div id="${hexId}">#000000</div>
+        <script nonce='${nonce}' type='module'>
           const vscode = acquireVsCodeApi();
-          const picker = document.getElementById('${inputId}}');
+          const picker = document.getElementById('${inputId}');
           const hexText = document.getElementById('${hexId}');
 
           picker.addEventListener('input', (e) => {
             const color = e.target.value;
             hexText.innerText = color;
             vscode.postMessage({ command: '${commands.colorSelected}', value: color });
-          });
+          }, { passive: true });
         </script>
       </body>
       </html>`;

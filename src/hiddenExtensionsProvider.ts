@@ -166,7 +166,7 @@ export class HiddenExtensionsProvider implements WebviewViewProvider {
         const vscode = acquireVsCodeApi();
         document.getElementById('${buttonId}').addEventListener('click', () => {
           vscode.postMessage({ command: '${command.hide}' });
-        });
+        }, { passive: true });
       </script>
     </body>
     </html>`;

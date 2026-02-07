@@ -63,7 +63,7 @@ function isObject(it: HasType): boolean {
 }
 
 export class ExtensionBrandResolver {
-  public static readonly brand: string;
+  public static readonly command: string;
   public static readonly webview: string;
   public static readonly configuration1: string;
   public static readonly configuration2: string;
@@ -155,7 +155,7 @@ export class ExtensionBrandResolver {
   }
 
   private setupBrand() {
-    const name = ExtensionBrandResolver.brand;
+    const name = ExtensionBrandResolver.command;
     brand.aimFile = `${name}.aimFile`;
     brand.showBuiltinFeatures = `${name}.showBuiltinFeatures`;
     brand.hideBuiltinFeatures = `${name}.hideBuiltinFeatures`;
@@ -239,12 +239,13 @@ export class ExtensionBrandResolver {
     : undefined;
 
     const self = ExtensionBrandResolver as any;
-    self.brand = command;
+    self.command = command;
     self.webview = view;
     self.configuration1 = beforeLastDot(objectProp1);
     self.configuration2 = beforeLastDot(objectProp2);
-    self.objectProperty = afterLastDot(objectProp1);
-    self.objectProperty = afterLastDot(objectProp2);
+    self.objectProperty1 = afterLastDot(objectProp1);
+    self.objectProperty2 = afterLastDot(objectProp2);
+    Object.freeze(ExtensionBrandResolver);
 
     this.setupBrand();
     //this.setupColors();
