@@ -140,8 +140,7 @@ export class HiddenExtensionsProvider implements WebviewViewProvider {
       <meta http-equiv="Content-Security-Policy" content="${csp}">
       <meta name="viewport" content="width=device-width, initial-scale=1.0">
       <title>Hidden</title>
-      <style>
-        <style nonce="${nonce}"/>
+      <style nonce="${nonce}">
         body {
           color: var(--vscode-foreground);
           font-family: var(--vscode-font-family);
@@ -155,12 +154,8 @@ export class HiddenExtensionsProvider implements WebviewViewProvider {
           padding: 5px 10px;
           cursor: pointer;
         }
-          button:hover {
+        button:hover {
           background-color: var(--vscode-button-hoverBackground);
-        }
-        ul {
-          list-style: none;
-          padding: 0;
         }
       </style>
     </head>
