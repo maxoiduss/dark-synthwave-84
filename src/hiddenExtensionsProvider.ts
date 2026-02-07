@@ -123,6 +123,8 @@ export class HiddenExtensionsProvider implements WebviewViewProvider {
       `frame-src ${cspSource} blob: data:`,
       `connect-src ${cspSource} https: http://localhost:* http://127.0.0.1:*`
     ].join("; ");
+
+    const buttonId = "showBtn";
   
     this.view.webview.html = `<!DOCTYPE html>
     <html lang="en">
@@ -131,8 +133,7 @@ export class HiddenExtensionsProvider implements WebviewViewProvider {
       <meta http-equiv="Content-Security-Policy" content="${csp}">
       <meta name="viewport" content="width=device-width, initial-scale=1.0">
       <title>Hidden</title>
-      <style>
-        <style nonce="${nonce}"/>
+      <style nonce="${nonce}">
         body {
           color: var(--vscode-foreground);
           font-family: var(--vscode-font-family);
@@ -146,23 +147,19 @@ export class HiddenExtensionsProvider implements WebviewViewProvider {
           padding: 5px 10px;
           cursor: pointer;
         }
-          button:hover {
+        button:hover {
           background-color: var(--vscode-button-hoverBackground);
-        }
-        ul {
-          list-style: none;
-          padding: 0;
         }
       </style>
     </head>
     <body aria-label>
       <h2>Hidden Extensions</h2>
-      <button id="showBtn" title="Extensions">${withText}</button>
+      <button id="${buttonId}" title="Extensions">${withText}</button>
       <script nonce='${nonce}' type='module'>
         const vscode = acquireVsCodeApi();
-        document.getElementById('showBtn').addEventListener('click', () => {
+        document.getElementById('${buttonId}').addEventListener('click', () => {
           vscode.postMessage({ command: '${this.hide}' });
-        });
+        }, { passive: true });
       </script>
     </body>
     </html>`;
