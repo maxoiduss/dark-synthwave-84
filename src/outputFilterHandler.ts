@@ -13,13 +13,13 @@ interface LogConfig {
   exclude: string[];
 }
 
-const tag = {
-  name: "output.filter",
-  scheme: {
-    rules: "rules"
-  }
-};
 const empty = '';
+const tag = {
+  get name() { return ExtensionBrandResolver.configuration1; },
+  scheme: {
+    get rules() { return ExtensionBrandResolver.objectProperty1; }
+  }
+} as const;
 
 export class OutputFilterHandler implements vscode.Disposable {
   private static readonly subscriptions: Map<number, vscode.Disposable> =

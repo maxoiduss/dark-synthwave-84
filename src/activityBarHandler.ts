@@ -3,8 +3,9 @@ import { brand, commands } from "./extensionBrandResolver";
 
 const unknownBarToggleIcon: string = "question";
 const activityBarToggleIcon: string = "layout-sidebar-left-dock";
-const unknownActivityBarText: string = "Fullscreen or Activity Bar";
+const unknownActivityBarText: string = "Toggle Activity Bar or ...";
 const showHideActivityBarText: string = "Show/Hide Activity Bar";
+const toggleSideBarCommand: string = "Toggle Side Bar";
 const toggleFullScreenCommand: string = "Toggle Fullscreen";
 const toggleActivityBarCommand: string = "Toggle Activity Bar";
 
@@ -35,6 +36,7 @@ export class ActivityBarHandler {
 
     const picked = await vscode.window.showQuickPick([
       toggleFullScreenCommand,
+      toggleSideBarCommand,
       toggleActivityBarCommand
       ], { title: "What to toggle?", canPickMany: false }
     )
@@ -42,9 +44,14 @@ export class ActivityBarHandler {
       vscode.commands.executeCommand(
         commands.toggleFullScreen
       );
-    }
+    } else
     if (picked === toggleActivityBarCommand) {
       this.toggleActivityBar();
+    } else
+    if (picked === toggleSideBarCommand) {
+      vscode.commands.executeCommand(
+        commands.toggleSideBarVisibility
+      );
     }
     this.changeIconTo({ unknown: false });
     this.changeTooltipTo({ unknown: false });

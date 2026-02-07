@@ -31,7 +31,7 @@ It's for the original theme: before you make any changes, [please read the contr
 
 ### 1.0.4
 
- - [Hidden *Pick dialog* menu](https://github.com/maxoiduss/dark-synthwave-84/commit/4172c13bb11bafb00e7eecde3165f02187563d81) - on multiclicking on [`Show/Hide Activity Bar` button](https://github.com/maxoiduss/dark-synthwave-84??tab=readme-ov-file#103) *(the menu may be populated later)*
+ - [Hidden *Pick dialog* menu](https://github.com/maxoiduss/dark-synthwave-84/commit/4172c13bb11bafb00e7eecde3165f02187563d81) - on multiclicking on <a href="#102">`Show/Hide Activity Bar`</a> button *(the menu may be populated later)*
 
  - [Noticable theme colors](https://github.com/maxoiduss/dark-synthwave-84/commit/900b83ab0bcf09a01cdbdf2e17e9d69ae0958298) - to detect active and inactive windows
 

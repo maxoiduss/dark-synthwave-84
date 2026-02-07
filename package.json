@@ -27,8 +27,8 @@
   "contributes": {
     "themes": [
       {
-        "id": "Dark SynthWave '84",
-        "label": "Dark SynthWave '84",
+        "id": "Dark SynthWave",
+        "label": "Dark SynthWave",
         "uiTheme": "vs-dark",
         "path": "./themes/dark-synthwave-84-color-theme.json"
       }
@@ -54,7 +54,7 @@
       ]
     },
     "configuration": {
-      "title": "Dark SynthWave '84",
+      "title": "Dark SynthWave",
       "properties": {
         "output.filter.rules": {
           "type": "object",
@@ -63,6 +63,170 @@
           "additionalProperties": {
             "type": "string",
             "description": "key-value: a key is two strings colon-separated and a value is pattern for Filter, example: key is 'rendererLog:Window' and value is 'Window, !info'"
+          }
+        },
+        "color.customization.rules.background": {
+          "type": "object",
+          "title": "Rules",
+          "description": "Map background colors.",
+          "additionalProperties": false,
+          "required": [
+            "activityBar.background",
+            "button.background",
+            "debugToolBar.background",
+            "editor.background",
+            "focusBorder",
+            "editorGroupHeader.tabsBackground",
+            "menu.background",
+            "notificationCenterHeader.background",
+            "sideBar.background",
+            "statusBar.background",
+            "tab.activeBackground",
+            "titleBar.activeBackground"
+          ],
+          "properties": {
+            "activityBar.background": {
+              "type": "string",
+              "format": "color-hex",
+              "description": "Color for the activity bar background."
+            },
+            "button.background": {
+              "type": "string",
+              "format": "color-hex",
+              "description": "Color for button background."
+            },
+            "debugToolBar.background": {
+              "type": "string",
+              "format": "color-hex",
+              "description": "Color for debug toolbar background."
+            },
+            "editor.background": {
+              "type": "string",
+              "format": "color-hex",
+              "description": "Color for editor background."
+            },
+            "focusBorder": {
+              "type": "string",
+              "format": "color-hex",
+              "description": "Color for focus border."
+            },
+            "editorGroupHeader.tabsBackground": {
+              "type": "string",
+              "format": "color-hex",
+              "description": "Color for editor group header tabs background."
+            },
+            "menu.background": {
+              "type": "string",
+              "format": "color-hex",
+              "description": "Color for menu background."
+            },
+            "notificationCenterHeader.background": {
+              "type": "string",
+              "format": "color-hex",
+              "description": "Color for notification center header background."
+            },
+            "sideBar.background": {
+              "type": "string",
+              "format": "color-hex",
+              "description": "Color for sidebar background."
+            },
+            "statusBar.background": {
+              "type": "string",
+              "format": "color-hex",
+              "description": "Color for status bar background."
+            },
+            "tab.activeBackground": {
+              "type": "string",
+              "format": "color-hex",
+              "description": "Color for active tab background."
+            },
+            "titleBar.activeBackground": {
+              "type": "string",
+              "format": "color-hex",
+              "description": "Color for active title bar background."
+            }
+          },
+          "default": {
+            "activityBar.background": "#171520",
+            "button.background": "#614D85",
+            "debugToolBar.background": "#463465EE",
+            "editor.background": "#1D1D3BE5",
+            "focusBorder": "#880088",
+            "editorGroupHeader.tabsBackground": "#241B2F",
+            "menu.background": "#463465",
+            "notificationCenterHeader.background": "#bb00ffda",
+            "sideBar.background": "#1F11316C",
+            "statusBar.background": "#241B2F",
+            "tab.activeBackground": "#41002270",
+            "titleBar.activeBackground": "#21172E"
+          }
+        },
+        "color.customization.rules.foreground": {
+          "type": "object",
+          "title": "Rules",
+          "description": "Map of theme keys to custom hex colors.",
+          "additionalProperties": false,
+          "required": [
+            "activityBar.foreground",
+            "foreground",
+            "notificationCenterHeader.foreground",
+            "panelTitle.activeForeground",
+            "sideBar.foreground",
+            "statusBar.foreground",
+            "tab.activeForeground",
+            "titleBar.activeForeground"
+          ],
+          "properties": {
+            "activityBar.foreground": {
+              "type": "string",
+              "format": "color-hex",
+              "description": "Color for the activity bar icons."
+            },
+            "foreground": {
+              "type": "string",
+              "format": "color-hex",
+              "description": "Default foreground color for text and UI elements."
+            },
+            "notificationCenterHeader.foreground": {
+              "type": "string",
+              "format": "color-hex",
+              "description": "Color for notification center header text."
+            },
+            "panelTitle.activeForeground": {
+              "type": "string",
+              "format": "color-hex",
+              "description": "Color for active panel title foreground."
+            },
+            "sideBar.foreground": {
+              "type": "string",
+              "format": "color-hex",
+              "description": "Color for sidebar text."
+            },
+            "statusBar.foreground": {
+              "type": "string",
+              "format": "color-hex",
+              "description": "Color for status bar text."
+            },
+            "tab.activeForeground": {
+              "type": "string",
+              "format": "color-hex",
+              "description": "Color for active tab text."
+            },
+            "titleBar.activeForeground": {
+              "type": "string",
+              "format": "color-hex",
+              "description": "Color for active title bar text."
+            }
+          },
+          "default": {
+            "activityBar.foreground": "#A9F2FFAA",
+            "foreground": "#FFFFFF",
+            "notificationCenterHeader.foreground": "#500000",
+            "panelTitle.activeForeground": "#A9F2FFAA",
+            "sideBar.foreground": "#FFFFFF99",
+            "statusBar.foreground": "#FFFFFF80",
+            "tab.activeForeground": "#E5D2FF",
+            "titleBar.activeForeground": "#FFFFFF"
           }
         }
       }
@@ -93,8 +257,7 @@
         }
       }
     ],
-    "menus":
-    {
+    "menus": {
       "editor/title": [
         {
           "command": "dark-synthwave.aimFile",
@@ -127,7 +290,7 @@
           "group": "panel"
         }
       ]
-    }   
+    }
   },
   "scripts": {
     "vscode:prepublish": "npm run pretest",

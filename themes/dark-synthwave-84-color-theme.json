@@ -1,6 +1,6 @@
 {
 	"$schema": "vscode://schemas/color-theme",
-	"name": "Dark SynthWave '84",
+	"name": "Dark SynthWave 84",
 	"type": "dark",
 	"colors": {
 		"activityBar.background": "#171520",
