@@ -5,7 +5,11 @@ import { brand, commands } from "./extensionBrandResolver";
 const keyWordForHiddens = "@builtin";
 const empty = '';
 
-function getNonce() {
+const command = {
+  hide: "hideHidden"
+} as const;
+
+export function getNonce() {
   let text = empty;
   const possible =
     "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789";
@@ -15,12 +19,24 @@ function getNonce() {
   return text;
 }
 
+export function getCSP(nonce: string, cspSourceDefault: string) {
+  const cspSource = cspSourceDefault;
+  const csp = [
+    `default-src 'none'`,
+    `script-src 'nonce-${nonce}' ${cspSource}`,
+    `style-src 'nonce-${nonce}' ${cspSource} 'unsafe-inline'`,
+    `frame-src ${cspSource} blob: data:`,
+    `connect-src ${cspSource} https: http://localhost:* http://127.0.0.1:*`
+  ].join("; ");
+
+  return csp;
+}
+
 export class HiddenExtensionsProvider implements WebviewViewProvider {
   private view: WebviewView | undefined;
   private registered: boolean = false;
   private lastViewVisibleValue: boolean = false;
   private cspSourceDefault!: string;
-  private readonly hide = "hideHidden";
   private readonly collapseView = "collapse view to stop show";
   private readonly unfocus = commands.focusActiveEditorGroup;
 
@@ -74,7 +90,6 @@ export class HiddenExtensionsProvider implements WebviewViewProvider {
         this.hideHiddenExtensions();
       }
     );
-
     this.context.subscriptions.push(showExtensions, hideExtensions);
     this.registered = true;
   }
@@ -91,7 +106,7 @@ export class HiddenExtensionsProvider implements WebviewViewProvider {
     const visibilityTimeout = 100;
 
     view.webview.onDidReceiveMessage(async (message) => {
-      if (message.command === this.hide) {
+      if (message.command === command.hide) {
         await this.hideHiddenExtensions();
         await this.unfocusExtensionsSearch();
       }
@@ -115,14 +130,8 @@ export class HiddenExtensionsProvider implements WebviewViewProvider {
     if (!this.view) { return; }
     
     const nonce = getNonce();
-    const cspSource = this.cspSourceDefault;
-    const csp = [
-      `default-src 'none'`,
-      `script-src 'nonce-${nonce}' ${cspSource}`,
-      `style-src 'nonce-${nonce}' ${cspSource} 'unsafe-inline'`,
-      `frame-src ${cspSource} blob: data:`,
-      `connect-src ${cspSource} https: http://localhost:* http://127.0.0.1:*`
-    ].join("; ");
+    const csp = getCSP(nonce, this.cspSourceDefault);
+    const buttonId = "showBtn";
   
     this.view.webview.html = `<!DOCTYPE html>
     <html lang="en">
@@ -157,11 +166,11 @@ export class HiddenExtensionsProvider implements WebviewViewProvider {
     </head>
     <body aria-label>
       <h2>Hidden Extensions</h2>
-      <button id="showBtn" title="Extensions">${withText}</button>
+      <button id="${buttonId}" title="Extensions">${withText}</button>
       <script nonce='${nonce}' type='module'>
         const vscode = acquireVsCodeApi();
-        document.getElementById('showBtn').addEventListener('click', () => {
-          vscode.postMessage({ command: '${this.hide}' });
+        document.getElementById('${buttonId}').addEventListener('click', () => {
+          vscode.postMessage({ command: '${command.hide}' });
         });
       </script>
     </body>

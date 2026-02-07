@@ -245,6 +245,10 @@
         "title": "Show Ouput Log Using Rules"
       },
       {
+        "command": "dark-synthwave.openColorPicker",
+        "title": "Open Color Picker"
+      },
+      {
         "command": "dark-synthwave.showActivityBar",
         "title": "Show/Hide Activity Bar"
       },
@@ -262,6 +266,12 @@
         {
           "command": "dark-synthwave.aimFile",
           "group": "navigation"
+        }
+      ],
+      "editor/title/context": [
+        {
+            "command": "dark-synthwave.openColorPicker",
+            "when": "activeEditor == 'workbench.editor.settings2'"
         }
       ],
       "editor/context": [

@@ -1,13 +1,19 @@
 import * as vscode from "vscode";
 import { ActivityBarHandler } from "./activityBarHandler";
-import { noRealDocOpened, ExtensionPageHandler } from "./extensionPageHandler";
+import {
+  noRealDocOpened,
+  ExtensionPageHandler } from "./extensionPageHandler";
 import { HiddenExtensionsProvider } from "./hiddenExtensionsProvider";
 import { OutputFilterHandler } from "./outputFilterHandler";
-import { brand, commands, ExtensionBrandResolver } from "./extensionBrandResolver";
+import {
+  brand,
+  commands,
+  ExtensionBrandResolver } from "./extensionBrandResolver";
+import { ColorPickerCreator } from "./colorPickerCreator";
 
 export function activate(context: vscode.ExtensionContext) {
-  const resolver = new ExtensionBrandResolver(context);
-  resolver.resolve();
+  const extensionBrand = new ExtensionBrandResolver(context);
+  extensionBrand.resolve();
   
   const toggleRegistered = ActivityBarHandler.create();
   toggleRegistered ? 
@@ -23,6 +29,9 @@ export function activate(context: vscode.ExtensionContext) {
       )
   );
   context.subscriptions.push(aimRegistered);
+
+  const colorPicker = new ColorPickerCreator(context);
+  colorPicker.create();
 
   const hiddenExtensionsProvider = new HiddenExtensionsProvider(context);
   const webviewRegistered = vscode.window.registerWebviewViewProvider(

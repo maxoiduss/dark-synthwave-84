@@ -12,18 +12,19 @@ class Custom {
 export const background = new Custom();
 export const foreground = new Custom();
 
-class Default {
+/*class Default {
   public readonly colors: Record<string, string> = {};
 }
 export const foregroundDefault = new Default();
 export const backgroundDefault = new Default();
-
+*/
 interface Brand {
   aimFile: string;
-  showBuiltinFeatures: string;
   hideBuiltinFeatures: string;
+  showBuiltinFeatures: string;
   showActivityBar: string;
   showOutputLog: string;
+  openColorPicker: string;
 }
 export const brand = {} as Brand;
 
@@ -76,7 +77,6 @@ export class ExtensionBrandResolver {
   private readonly filtration:
   (value: any, index: number, array: any[]) => unknown =
         value => typeof value === "string"
-    &&  value.startsWith(ExtensionBrandResolver.brand)
     && !value.includes(":");
 
   constructor(private readonly context: vscode.ExtensionContext) {
@@ -161,6 +161,7 @@ export class ExtensionBrandResolver {
     brand.hideBuiltinFeatures = `${name}.hideBuiltinFeatures`;
     brand.showActivityBar = `${name}.showActivityBar`;
     brand.showOutputLog = `${name}.showOutputLog`;
+    brand.openColorPicker = `${name}.openColorPicker`;
 
     this.validateSetup();
   }
