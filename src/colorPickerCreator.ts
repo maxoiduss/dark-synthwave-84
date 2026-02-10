@@ -97,11 +97,10 @@ export class ColorPickerCreator implements vscode.Disposable {
             border: 1px solid var(--vscode-settings-headerBorder);
             border-radius: 4px;
             cursor: pointer;
-            max-width: 400px;
             width: 100%;
             height: 100%;
-            margin-left: auto;
-            margin-right: auto;
+            max-height: 600px;
+            margin-bottom: auto;
             margin: 0;
             padding: 0;
           }
@@ -127,9 +126,6 @@ export class ColorPickerCreator implements vscode.Disposable {
             background-color: var(--vscode-textBlockQuote-background);
             border-radius: 2px;
             border: 1px solid var(--vscode-widget-border);
-            max-width: 400px;
-            margin-left: auto;
-            margin-right: auto;
             padding: 6px;
         }
         </style>
