@@ -92,13 +92,16 @@ export class ColorPickerCreator implements vscode.Disposable {
           #${inputId} {
             -webkit-appearance: none;
             appearance: none;
-            background: var(--vscode-input-background);
             box-sizing: border-box;
+            background: var(--vscode-input-background);
             border: 1px solid var(--vscode-settings-headerBorder);
             border-radius: 4px;
             cursor: pointer;
+            max-width: 400px;
             width: 100%;
             height: 100%;
+            margin-left: auto;
+            margin-right: auto;
             margin: 0;
             padding: 0;
           }
@@ -106,15 +109,29 @@ export class ColorPickerCreator implements vscode.Disposable {
             padding: 0;
           }
           #${inputId}::-webkit-color-swatch {
-           border: none;
-           border-radius: 2px;
-           width: 100%;
-           height: 100%;
-          
+            border: none;
+            border-radius: 2px;
+            width: 100%;
+            height: 100%;
+          }
           #${inputId}:focus {
             outline: 1px solid var(--vscode-focusBorder);
             outline-offset: -2px;
           }
+          #${hexId} {
+            margin-top: 10px;
+            display: block;
+            box-sizing: border-box;
+            text-align: center;
+            font-family: var(--vscode-editor-font-family);
+            background-color: var(--vscode-textBlockQuote-background);
+            border-radius: 2px;
+            border: 1px solid var(--vscode-widget-border);
+            max-width: 400px;
+            margin-left: auto;
+            margin-right: auto;
+            padding: 6px;
+        }
         </style>
       </head>
       <body aria-label>
@@ -124,11 +141,36 @@ export class ColorPickerCreator implements vscode.Disposable {
           const vscode = acquireVsCodeApi();
           const picker = document.getElementById('${inputId}');
           const hexText = document.getElementById('${hexId}');
-
+          const closePicker = () => {
+            picker.type = 'text';
+            picker.type = 'color';
+            };
+          let pickerOpened = false;
+          
           picker.addEventListener('input', (e) => {
+            pickerOpened = true;
             const color = e.target.value;
-            hexText.innerText = color;
-            vscode.postMessage({ command: '${commands.colorSelected}', value: color });
+            hexText.innerText = color.toUpperCase();
+            vscode.postMessage({
+              command: '${commands.colorSelected}',
+              value: color.toUpperCase()
+            });
+          }, { passive: true });
+          document.addEventListener('click', async (e) => {
+            const clickedElement = e.target;
+            if (clickedElement.id === '${inputId}') {
+              if (pickerOpened) {
+                await new Promise(resolve => setTimeout(resolve, 50));
+                closePicker();
+              }
+              pickerOpened = !pickerOpened;
+            }
+          }, { passive: true });
+          window.addEventListener('blur', () => {
+            if (pickerOpened) {
+              pickerOpened = false;
+            }
+            closePicker();
           }, { passive: true });
         </script>
       </body>
