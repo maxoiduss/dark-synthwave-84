@@ -9,12 +9,12 @@ type BusyOrFree = typeof busy | typeof free;
 type Empty = typeof empty;
 
 function isEmpty(object: any) {
-  return JSON.stringify(object) === JSON.stringify(empty)
+  return JSON.stringify(object) === JSON.stringify(empty);
 }
 
 async function doesWorkspaceSettingsExist(): Promise<boolean> {
   const folders = vscode.workspace.workspaceFolders;
-  if (!folders) return false;
+  if (!folders) { return false; }
 
   const settingsUri = vscode.Uri.joinPath(
     folders[0].uri, ".vscode", "settings.json"
@@ -37,19 +37,19 @@ export class ConfigurationManager {
     ConfigurationManager.instance ??= new ConfigurationManager();
     ConfigurationManager.instance.configurations.set(configuration, "free");
 
-    return ConfigurationManager.instance ;
+    return ConfigurationManager.instance;
   }
   private constructor() { }
 
-  public onChangedConfiguration(
+  public onChangedConfiguration(configuration: string,
+    configurationFullName: string,
     listener: () => any,
     thisArgs?: any,
     disposables?: vscode.Disposable[]
   ): vscode.Disposable {
     const onDidChangeConfiguration = this.changed((e) => {
-      if ([...this.configurations].some(
-        ([configuration, _]) => e.affectsConfiguration(configuration))
-      ) {
+      if (this.configurations.has(configuration)
+        && e.affectsConfiguration(configurationFullName)) {
         listener();
       }
     }, thisArgs, disposables);
@@ -57,7 +57,7 @@ export class ConfigurationManager {
     return onDidChangeConfiguration;
   }
 
-  public async makeUpdateConfiguration<T extends Empty>(
+  public async makeUpdateConfiguration<T extends Empty | undefined>(
     config: () => [string, string | undefined],
     update: (target: ConfigurationTarget) => Promise<T>,
     setter: (...args: any[]) => Promise<any> = this.setValue
@@ -69,34 +69,36 @@ export class ConfigurationManager {
       return;
     }
     this.configurations.set(configuration, busy);
-    
-    const workspaceSettingsExist = await doesWorkspaceSettingsExist();
-    const updateThenSet = async (on: ConfigurationTarget): Promise<T> =>
-    {
-      const onScope = on;
-      const value = await update(onScope);
-
-      if (!workspaceSettingsExist && isEmpty(value)) {
+    try {
+      const workspaceSettingsExist = await doesWorkspaceSettingsExist();
+      const updateThenSet = async (on: ConfigurationTarget): Promise<T> =>
+      {
+        const onScope = on;
+        const value = await update(onScope);
+  
+        if (!workspaceSettingsExist && isEmpty(value)) {
+          return value;
+        }
+        if (setter === this.setValue && section) {
+          await this.setValue(configuration, section, onScope, value);
+        } else {
+          await setter(value);
+        }
         return value;
+      };
+      const global = await updateThenSet(ConfigurationTarget.Global);
+      const wspace = await updateThenSet(ConfigurationTarget.Workspace);
+  
+      if (isEmpty(wspace) && !isEmpty(global)) {
+        await updateThenSet(ConfigurationTarget.Global);
       }
-      if (setter === this.setValue && section) {
-        await this.setValue(configuration, section, on, value);
-      } else {
-        await setter();
-      }
-      return value;
-    };
-    const global = await updateThenSet(ConfigurationTarget.Global);
-    const wspace = await updateThenSet(ConfigurationTarget.Workspace);
-
-    if (isEmpty(wspace) && !isEmpty(global)) {
-      await updateThenSet(ConfigurationTarget.Global);
+    } finally {
+      this.configurations.set(configuration, free);
     }
-    this.configurations.set(configuration, free);
   }
 
   public getValue<T>(
-    config: string,
+    config: string| undefined,
     section: string,
     target: ConfigurationTarget
   ): T | undefined {
@@ -110,8 +112,8 @@ export class ConfigurationManager {
     return value as T | undefined;
   }
 
-  public async setValue<T extends Empty>(
-    config: string,
+  public async setValue<T extends Empty | undefined>(
+    config: string | undefined,
     section: string,
     target: ConfigurationTarget,
     value: T
@@ -122,6 +124,21 @@ export class ConfigurationManager {
     } catch (error) {
       const message = error?.toString() ?? "Configuration save error";
       vscode.window.showErrorMessage(message);
+    }
+  }
+
+  public async cleanValue(configuration: string, section: string,) {
+    const global = ConfigurationTarget.Global;
+    const workspace = ConfigurationTarget.Workspace;
+    if (this.configurations.get(configuration) === busy) {
+      return;
+    }
+    this.configurations.set(configuration, busy);
+    try {
+      await this.setValue(configuration, section, global, undefined);
+      await this.setValue(configuration, section, workspace, undefined);
+    } finally {
+      this.configurations.set(configuration, free);
     }
   }
 
