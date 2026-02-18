@@ -15,7 +15,7 @@ And also here are extra features like *Reveal File* in the Explorer view or *Ext
 
 ### Features
 - 👁️‍🗨️ *Hidden* Extensions View. Drag it to *Extensions View Container*, then you can see all hidden extension just by expanding this view. You need to collapse this view in order not to show them again.
-- 🎯 *Reveal file* is a 'target' icon on the Tab Bar. Click on it shows you: a) the file revealed in the *Explorer View* - if it's opened in the Editor right now, b) installed extension - if it's name equals the project name is opened now, c) pop up message where you can choose between opening Dark SynthWave settings or all running extensions View.
+- 🎯 *Reveal file* is a 'target' icon on the Tab Bar. Click on it shows you: a) the file revealed in the *Explorer View* - if it's opened in the Editor right now, b) installed extension - if its name equals the project name is opened now, c) pop up message where you can choose between opening Dark SynthWave settings or all running extensions View.
 - ⬅️ *Show/Hide Activity Bar* is the item in the Status Bar. Single click will hide or show - if it's hidden - Activity Bar. Rapid multiclick will show you a menu with several variants what to toggle (show/hide).
 - 📟 *Rules* for the *Filter* in the *Output* channels. In the settings you can specify the string you will automatically have in the clipboard when you a) copy *non selected* text - in the selected channel specified by you or b) use 'Show Ouput Log Using Rules' command. After that you can paste the string to Output Filter, there is the only way to force the channel to filter the messages.
 - 🌐 *Open Embedded Web Browser* - command in the title context menu when *'Welcome'* page is opened. Yes, you can use built-in web browser.
