@@ -1,5 +1,12 @@
 ## Changelog
 
+### 1.0.5
+
+ - [Theme customization](https://github.com/maxoiduss/dark-synthwave-84/commit/7c40a92cfef325800b567fb36e939715ec0224e7) in settings using [`Color Picker`](https://github.com/maxoiduss/dark-synthwave-84/commit/f7d759a7d892f6745a588022153d3d4bca6d9a1c).
+
+ - [`Reopen Closed Editor` and `Open Embedded Web Browser` commands](https://github.com/maxoiduss/dark-synthwave-84/commit/0b842c88b779d9f8f9ee561762553793c084727d) in the title context menu.
+
+#
 ### 1.0.4
 
  - [Hidden *Pick dialog* menu](https://github.com/maxoiduss/dark-synthwave-84/commit/4172c13bb11bafb00e7eecde3165f02187563d81) - on multiclicking on [`Show/Hide Activity Bar` button](https://github.com/maxoiduss/dark-synthwave-84??tab=readme-ov-file#103) *(the menu may be populated later)*
