@@ -6,6 +6,10 @@ import {
   commands,
   ExtensionBrandResolver
 } from "./extensionBrandResolver";
+import {
+  CommandInterceptor,
+  InterceptorType
+} from "./commandInterceptor";
 
 interface LogConfig {
   name: string;
@@ -25,18 +29,19 @@ export class OutputFilterHandler implements vscode.Disposable {
   private static readonly subscriptions: Map<number, vscode.Disposable> =
     new Map();
   private copyRegistered: boolean = false;
-  private pasteRegistered: boolean = false;
   private configurationRegistered: boolean = false;
   private lastCopiedText: string = empty;
   private dismissNotification: (() => void) | undefined;
-
+  
+  private readonly pasteCommand!: CommandInterceptor;
   private readonly targetLogs: Map<string, LogConfig> = new Map();
   private readonly configManager: ConfigurationManager =
     ConfigurationManager.getInstance(tag.name);
 
   constructor(private readonly context: vscode.ExtensionContext) {
-    const changedConfig = this.configManager.onChangedConfiguration(() =>
-      this.updateConfiguration(changedConfig)
+    const changedConfig = this.configManager.onChangedConfiguration(tag.name,
+      `${tag.name}.${tag.scheme.rules}`,
+      () => this.updateConfiguration(changedConfig)
     );
     const changedTextEditor = window.onDidChangeActiveTextEditor((editor) => {
       if (this.getLogTarget(editor?.document) !== false) {
@@ -55,6 +60,11 @@ export class OutputFilterHandler implements vscode.Disposable {
     OutputFilterHandler.subscriptions.set(100, changedConfig);
     OutputFilterHandler.subscriptions.set(1000, changedTextEditor);
 
+    this.pasteCommand = new CommandInterceptor(
+      commands.clipboardPasteAction, InterceptorType.Weak, this.context, () =>
+        this.closeNotification(), async () =>
+        await vscode.env.clipboard.writeText(this.lastCopiedText)
+    );
     this.copyRegistered = true;
     this.updateConfiguration();
   }
@@ -63,6 +73,7 @@ export class OutputFilterHandler implements vscode.Disposable {
     OutputFilterHandler.subscriptions.forEach((subscription, _) => {
       subscription.dispose();
     });
+    this.pasteCommand.destroy();
     OutputFilterHandler.subscriptions.clear();
   }
 
@@ -185,7 +196,7 @@ export class OutputFilterHandler implements vscode.Disposable {
   
         if (target && selected === empty) {
           this.lastCopiedText = await vscode.env.clipboard.readText();
-          this.registerPasteCommand(this.context);
+          this.pasteCommand.register();
           
           if (target as unknown as LogConfig) {
             const config = target as LogConfig;
@@ -202,26 +213,7 @@ export class OutputFilterHandler implements vscode.Disposable {
 
     return copy;
   }
-  
-  private registerPasteCommand(context: vscode.ExtensionContext) {
-    if (this.pasteRegistered) { return; }
-  
-    this.pasteRegistered = true;
-  
-    const paste = vscode.commands.registerCommand(
-      commands.clipboardPasteAction,
-      async () => {
-        paste.dispose();
-        this.pasteRegistered = false;
-        this.closeNotification();
-  
-        await vscode.commands.executeCommand(commands.clipboardPasteAction);
-        await vscode.env.clipboard.writeText(this.lastCopiedText);
-      }
-    )
-    context.subscriptions.push(paste);
-  }
-    
+
   private closeNotification() {
     this.dismissNotification?.();
     this.dismissNotification = undefined;
