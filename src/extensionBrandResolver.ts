@@ -12,12 +12,15 @@ class Custom {
 export const background = new Custom();
 export const foreground = new Custom();
 
-/*class Default {
-  public readonly colors: Record<string, string> = {};
+class Default {
+  public readonly colors: Map<string, string> = new Map();
+
+  public contains = (color: string): boolean =>
+    this.colors.has(color);
 }
 export const foregroundDefault = new Default();
 export const backgroundDefault = new Default();
-*/
+
 interface Brand {
   aimFile: string;
   hideBuiltinFeatures: string;
@@ -25,12 +28,19 @@ interface Brand {
   showActivityBar: string;
   showOutputLog: string;
   openColorPicker: string;
+  openEmbedBrowser: string;
+  reopenClosedEditor: string;
+  enableEditMode: string;
+  resetBackgroundColors: string;
+  resetForegroundColors: string;
 }
 export const brand = {} as Brand;
 
 export const commands = {
   colorCustomizations: "workbench.colorCustomizations",
   openSettings: "workbench.action.openSettings",
+  browserOpen: "workbench.action.browser.open",
+  reopenClosedEditor: "workbench.action.reopenClosedEditor",
   showRuntimeExtensions: "workbench.action.showRuntimeExtensions",
   toggleActivityBarVisibility:
     "workbench.action.toggleActivityBarVisibility",
@@ -55,6 +65,9 @@ function validate(entries: string[], on: Set<string>): boolean {
 function hasColor(str: string): boolean {
   return str.toLowerCase().includes("color");
 }
+function hasDefault(it: any): boolean {
+  return isObject(it) && it.default;
+}
 function isString(it: HasType): boolean {
   return it.type === "string";
 }
@@ -67,8 +80,10 @@ export class ExtensionBrandResolver {
   public static readonly webview: string;
   public static readonly configuration1: string;
   public static readonly configuration2: string;
+  public static readonly configuration3: string;
   public static readonly objectProperty1: string;
   public static readonly objectProperty2: string;
+  public static readonly objectProperty3: string;
   public static readonly openSettings: () => Promise<void>;
   public static readonly openRunningExtensions: () => Promise<void>;
 
@@ -78,6 +93,10 @@ export class ExtensionBrandResolver {
   (value: any, index: number, array: any[]) => unknown =
         value => typeof value === "string"
     && !value.includes(":");
+
+  private commandsJSON: any;
+  private configurationJSON: any;
+  private viewsJSON: any;
 
   constructor(private readonly context: vscode.ExtensionContext) {
     if (ExtensionBrandResolver.instance) { return; }
@@ -127,31 +146,45 @@ export class ExtensionBrandResolver {
   }
 
   private setupDefaultColors() {
-    //backgroundDefault.colors["s1"] = "s2"
+    const properties =
+      this.configurationJSON.properties as HasType[];
+    const defaults = properties ?
+      Object.entries<HasType>(properties).flatMap(
+        ([name, property]) =>
+          (hasDefault(property) && hasColor(name) ?
+            [[name, property]] : []) as [string, HasType][]
+      ) : [];
+    const background = defaults.length > 0 ?
+      defaults.find(([n, _]) =>
+        n.includes(ExtensionBrandResolver.objectProperty2))?.[1]
+      : undefined;
+    if (background) {
+      Object.entries<string>((background as any).default)
+        .forEach((r) => backgroundDefault.colors.set(r[0], r[1]));
+    }
+    const foreground = defaults.length > 0 ?
+      defaults.find(([n, _]) =>
+        n.includes(ExtensionBrandResolver.objectProperty3))?.[1]
+      : undefined;
+    if (foreground) {
+      Object.entries<string>((foreground as any).default)
+        .forEach((r) => foregroundDefault.colors.set(r[0], r[1]));
+    }
   }
   
   private setupColors() {
-    const fromPackageJson = this.readConfig(false);
-    const configs = fromPackageJson?.configuration?.properties;
+    const configs = this.configurationJSON;
     if (!configs) { return; }
     
     const properties = configs as (HasType & HasProperties)[];
     let colors = this.getColors(properties, "background");
     if (colors.length > 0) {
-      this.setupBackground(colors);
+      colors.forEach((c) => background.colors.push(c));
     }
     colors = this.getColors(properties, "foreground");
     if (colors.length > 0) {
-      this.setupForeground(colors);
+      colors.forEach((c) => foreground.colors.push(c));
     }
-  }
-
-  private setupBackground(colors: string[]) {
-    colors.forEach((c) => background.colors.push(c));
-  }
-  
-  private setupForeground(colors: string[]) {
-    colors.forEach((c) => foreground.colors.push(c));
   }
 
   private setupBrand() {
@@ -162,15 +195,19 @@ export class ExtensionBrandResolver {
     brand.showActivityBar = `${name}.showActivityBar`;
     brand.showOutputLog = `${name}.showOutputLog`;
     brand.openColorPicker = `${name}.openColorPicker`;
+    brand.openEmbedBrowser = `${name}.openEmbedBrowser`;
+    brand.enableEditMode = `${name}.enableEditMode`;
+    brand.reopenClosedEditor = `${name}.reopenClosedEditor`;
+    brand.resetBackgroundColors = `${name}.resetBackgroundColors`;
+    brand.resetForegroundColors = `${name}.resetForegroundColors`;
 
     this.validateSetup();
   }
 
   private validateSetup() {
-    const fromPackageJson = this.readConfig(true);
-    if (!fromPackageJson) { return; }
+    if (!Array.isArray(this.commandsJSON)) { return; }
 
-    const commands = fromPackageJson.commands.map(
+    const commands = this.commandsJSON.map(
       (rec: { command: string; }) => rec.command
     ) as string[];
     const on = new Set(commands.sort());
@@ -183,22 +220,17 @@ export class ExtensionBrandResolver {
     }
   }
 
-  private readConfig(thenCommandsAndViews: boolean) {
+  private readFromPackageJSON() {
     const extensions = vscode.extensions.all
-      .filter(ext => ext.id.includes(resolver))
-      .map(ext => {
-        const packageJSON: any = ext.packageJSON;
-        return thenCommandsAndViews ? {
-          configuration:
-            packageJSON.contributes?.configuration || [],
-          commands: packageJSON.contributes?.commands || [],
-          views: packageJSON.contributes?.views || {}
-        } : {
-          configuration:
-            packageJSON.contributes?.configuration || []
-        };
-      });
-    return extensions.length > 0 ? extensions[0] : undefined;
+      .filter(ext => ext.id.includes(resolver));
+    if (extensions.length <= 0) {
+      throw new Error("PACKAGE.JSON NOT FOUND");
+    }
+    const packageJSON = extensions[0].packageJSON;
+    this.configurationJSON
+      = packageJSON.contributes?.configuration || [];
+    this.commandsJSON = packageJSON.contributes?.commands || [];
+    this.viewsJSON = packageJSON.contributes?.views || {};
   }
 
   public resolve() {
@@ -207,15 +239,17 @@ export class ExtensionBrandResolver {
     const afterLastDot = (str?: string) => str?.split(dot)?.pop();
     const beforeLastDot = (str?: string) =>
       str?.split(dot)?.slice(0, -1)?.join(dot);
-    const fromPackageJson = this.readConfig(true);
-    if (!fromPackageJson) { return; }
+    const throws = () => {
+      throw new Error("CANNOT SET UNDEFINED TO RESOLVER FIELDS");
+    };
+    this.readFromPackageJSON();
 
     const properties =
-      fromPackageJson.configuration.properties as HasType[];
-    const commands = fromPackageJson.commands.map(
+      this.configurationJSON.properties as HasType[];
+    const commands = this.commandsJSON.map(
       (c: { command: string; }) => c.command
     ) as string[];
-    const views = Object.values(fromPackageJson.views).find((v) => 
+    const views = Object.values(this.viewsJSON).find((v) => 
       Array.isArray(v) && v.some(item => isWebview(item))
     ) as Array<HasId>;
 
@@ -229,6 +263,11 @@ export class ExtensionBrandResolver {
     
     const objectProp2 = objectProps.length > 0 ?
       objectProps.find((p) => hasColor(p)) : undefined;
+    if (objectProp2) {
+      objectProps.splice(objectProps.indexOf(objectProp2), 1);
+    }
+    const objectProp3 = objectProps.length > 0 ?
+      objectProps.find((p) => hasColor(p)) : undefined;
     
     const command = new Set<string>(
       commands.map((c) => c.split(dot)[0])
@@ -241,14 +280,16 @@ export class ExtensionBrandResolver {
     const self = ExtensionBrandResolver as any;
     self.command = command;
     self.webview = view;
-    self.configuration1 = beforeLastDot(objectProp1);
-    self.configuration2 = beforeLastDot(objectProp2);
-    self.objectProperty1 = afterLastDot(objectProp1);
-    self.objectProperty2 = afterLastDot(objectProp2);
+    self.configuration1 = beforeLastDot(objectProp1) ?? throws();
+    self.configuration2 = beforeLastDot(objectProp2) ?? throws();
+    self.configuration3 = beforeLastDot(objectProp3) ?? throws();
+    self.objectProperty1 = afterLastDot(objectProp1) ?? throws();
+    self.objectProperty2 = afterLastDot(objectProp2) ?? throws();
+    self.objectProperty3 = afterLastDot(objectProp3) ?? throws();
     Object.freeze(ExtensionBrandResolver);
 
     this.setupBrand();
-    //this.setupColors();
-    //this.setupDefaultColors();
+    this.setupColors();
+    this.setupDefaultColors();
   }
 }

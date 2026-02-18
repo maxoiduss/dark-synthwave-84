@@ -10,6 +10,7 @@ import {
   commands,
   ExtensionBrandResolver } from "./extensionBrandResolver";
 import { ColorPickerCreator } from "./colorPickerCreator";
+import { ThemeCustomizer } from "./themeCustomizer";
 
 export function activate(context: vscode.ExtensionContext) {
   const extensionBrand = new ExtensionBrandResolver(context);
@@ -42,6 +43,9 @@ export function activate(context: vscode.ExtensionContext) {
 
   const outputFilterHandler = new OutputFilterHandler(context);
   context.subscriptions.push(outputFilterHandler);
+
+  const themeCustomizer = new ThemeCustomizer(context);
+  context.subscriptions.push(themeCustomizer);
 }
 
 export function deactivate(_context: vscode.ExtensionContext) {
