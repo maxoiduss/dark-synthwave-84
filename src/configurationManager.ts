@@ -98,7 +98,7 @@ export class ConfigurationManager {
   }
 
   public getValue<T>(
-    config: string| undefined,
+    config: string | undefined,
     section: string,
     target: ConfigurationTarget
   ): T | undefined {
@@ -127,7 +127,10 @@ export class ConfigurationManager {
     }
   }
 
-  public async cleanValue(configuration: string, section: string,) {
+  public async cleanValue(
+    configuration: string, 
+    section: string
+  ): Promise<void> {
     const global = ConfigurationTarget.Global;
     const workspace = ConfigurationTarget.Workspace;
     if (this.configurations.get(configuration) === busy) {
