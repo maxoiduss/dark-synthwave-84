@@ -164,7 +164,7 @@ export class OutputFilterHandler implements vscode.Disposable {
         await new Promise((resolve) => setTimeout(resolve, 50));
         await vscode.commands.executeCommand(commands.clipboardCopyAction);
       }
-    )
+    );
     this.context.subscriptions.push(show);
 
     return show;
@@ -257,7 +257,7 @@ export class OutputFilterHandler implements vscode.Disposable {
         const onCancel = token.onCancellationRequested(async () => {
           await this.showCanOpenSettings();
           onCancel.dispose();
-        })
+        });
   
         return new Promise<void>((resolve) => {
             this.dismissNotification = resolve;

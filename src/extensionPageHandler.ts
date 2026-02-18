@@ -45,7 +45,7 @@ export class ExtensionPageHandler {
       if (answer === text.settings) {
         ExtensionBrandResolver.openSettings();
       } else if (answer === text.extensions) {
-        ExtensionBrandResolver.openRunningExtensions()
+        ExtensionBrandResolver.openRunningExtensions();
       }
     }
   }

@@ -39,7 +39,7 @@ export class ActivityBarHandler {
       toggleSideBarCommand,
       toggleActivityBarCommand
       ], { title: "What to toggle?", canPickMany: false }
-    )
+    );
     if (picked === toggleFullScreenCommand) {
       vscode.commands.executeCommand(
         commands.toggleFullScreen
