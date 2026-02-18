@@ -131,7 +131,7 @@ export class ColorPickerCreator implements vscode.Disposable {
         </style>
       </head>
       <body aria-label>
-        <input type="color" id="${inputId}">
+        <input type="color" alpha id="${inputId}">
         <div id="${hexId}">#000000</div>
         <script nonce='${nonce}' type='module'>
           const vscode = acquireVsCodeApi();
