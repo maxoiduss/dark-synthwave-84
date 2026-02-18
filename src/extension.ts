@@ -46,6 +46,18 @@ export function activate(context: vscode.ExtensionContext) {
 
   const themeCustomizer = new ThemeCustomizer(context);
   context.subscriptions.push(themeCustomizer);
+
+  const reopenClosedCommand = vscode.commands.registerCommand(
+    brand.reopenClosedEditor, () => vscode.commands.executeCommand(
+      commands.reopenClosedEditor
+    )
+  );
+  const openBrowserCommand = vscode.commands.registerCommand(
+    brand.openEmbedBrowser, () => vscode.commands.executeCommand(
+      commands.browserOpen
+    )
+  );
+  context.subscriptions.push(reopenClosedCommand, openBrowserCommand);
 }
 
 export function deactivate(_context: vscode.ExtensionContext) {
