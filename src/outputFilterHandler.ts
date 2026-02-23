@@ -55,7 +55,6 @@ export class OutputFilterHandler implements vscode.Disposable {
         this.copyRegistered = false;
       }
     });
-    OutputFilterHandler.subscriptions.set(1, this.registerCopyCommand());
     OutputFilterHandler.subscriptions.set(10, this.registerShowLogCommand());
     OutputFilterHandler.subscriptions.set(100, changedConfig);
     OutputFilterHandler.subscriptions.set(1000, changedTextEditor);
