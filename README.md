@@ -3,7 +3,9 @@
 Theme based on [Synthwave Robb Owen theme](https://github.com/robb0wen/synthwave-vscode)
 
 # Description
-But with no glowing effect - just a simple theme for work with several extra features.
+![Window](https://raw.githubusercontent.com/maxoiduss/dark-synthwave-84/master/window.png)
+
+Ideologically close Robb's synthwave vibe - theme but *without* glowing effect - just a simple theme for comfortable coding with several extra features.
 You can find native syntax highlighting for top-most known languages such as
 Java, Python, Dart, C#, Kotlin, Swift, TypeScript, C++, Go and other.
 
