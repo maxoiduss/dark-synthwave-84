@@ -1,5 +1,12 @@
 ## Changelog
 
+### 1.0.6
+
+ - [Fixed crucial misbehavior](https://github.com/maxoiduss/dark-synthwave-84/commit/5578185b8e7e2a8fcd6437ba2ca33df467ea26e5) on copying the text from not-editor places (like *notifications*).
+
+ - [Theme window](https://github.com/maxoiduss/dark-synthwave-84/commit/a88e57bdafe387a288a8b853458c3dd0e7435fd7) view image for the presentation.
+
+#
 ### 1.0.5
 
  - [Theme customization](https://github.com/maxoiduss/dark-synthwave-84/commit/7c40a92cfef325800b567fb36e939715ec0224e7) in settings using [`Color Picker`](https://github.com/maxoiduss/dark-synthwave-84/commit/f7d759a7d892f6745a588022153d3d4bca6d9a1c).
