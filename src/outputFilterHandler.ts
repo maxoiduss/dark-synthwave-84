@@ -43,10 +43,38 @@ export class OutputFilterHandler implements vscode.Disposable {
       `${tag.name}.${tag.scheme.rules}`,
       () => this.updateConfiguration(changedConfig)
     );
-    const changedTextEditor = window.onDidChangeActiveTextEditor((editor) => {
-      if (this.getLogTarget(editor?.document) !== false) {
+    const changedTextEditor = window.onDidChangeActiveTextEditor((editor) =>
+      this.didChangeActiveTextEditor(editor)
+    );
+    OutputFilterHandler.subscriptions.set(10, this.registerShowLogCommand());
+    OutputFilterHandler.subscriptions.set(100, changedConfig);
+    OutputFilterHandler.subscriptions.set(1000, changedTextEditor);
+
+    this.configManager.setConditinallyRequiredConfig(
+      [tag.name, tag.scheme.rules]
+    );
+    this.pasteCommand = new CommandInterceptor(commands.clipboardPasteAction,
+      InterceptorType.Weak, this.context,
+      () => this.closeNotification(),
+      async () => await vscode.env.clipboard.writeText(this.lastCopiedText)
+    );
+    this.copyRegistered = true;
+    this.updateConfiguration();
+  }
+
+  public dispose() {
+    OutputFilterHandler.subscriptions.forEach((subscription, ) => {
+      subscription.dispose();
+    });
+    this.pasteCommand.destroy();
+    OutputFilterHandler.subscriptions.clear();
+  }
+
+  private didChangeActiveTextEditor(editor: vscode.TextEditor | undefined) {
+    if (this.getLogTarget(editor?.document) !== false) {
         if (!this.copyRegistered) {
-          OutputFilterHandler.subscriptions.set(1, this.registerCopyCommand());
+          OutputFilterHandler.subscriptions
+                             .set(1, this.registerCopyCommand());
           this.copyRegistered = true;
         }
       } else if (this.copyRegistered) {
@@ -54,26 +82,6 @@ export class OutputFilterHandler implements vscode.Disposable {
         OutputFilterHandler.subscriptions.delete(1);
         this.copyRegistered = false;
       }
-    });
-    OutputFilterHandler.subscriptions.set(10, this.registerShowLogCommand());
-    OutputFilterHandler.subscriptions.set(100, changedConfig);
-    OutputFilterHandler.subscriptions.set(1000, changedTextEditor);
-
-    this.pasteCommand = new CommandInterceptor(
-      commands.clipboardPasteAction, InterceptorType.Weak, this.context, () =>
-        this.closeNotification(), async () =>
-        await vscode.env.clipboard.writeText(this.lastCopiedText)
-    );
-    this.copyRegistered = true;
-    this.updateConfiguration();
-  }
-
-  public dispose() {
-    OutputFilterHandler.subscriptions.forEach((subscription, _) => {
-      subscription.dispose();
-    });
-    this.pasteCommand.destroy();
-    OutputFilterHandler.subscriptions.clear();
   }
 
   private checkConfigListener(
@@ -229,8 +237,8 @@ export class OutputFilterHandler implements vscode.Disposable {
 
   private simplifyLogConfig(config: LogConfig): string {
     const comma = ", ";
-    const exclude = config.exclude.length > 0 && config.exclude[0].length > 0 ?
-      `!${config.exclude.join(`${comma}!`)}` : empty;
+    const exclude = config.exclude.length > 0 && config.exclude[0].length > 0
+      ? `!${config.exclude.join(`${comma}!`)}` : empty;
     const include = config.show.join(comma);
     
     return [include, exclude].filter(Boolean).join(comma);

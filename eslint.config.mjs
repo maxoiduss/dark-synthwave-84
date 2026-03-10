@@ -33,6 +33,7 @@ export default [
       ],
       "no-throw-literal": "warn",
       "curly": "warn",
+      // "no-unused-vars": "warn",
       "eqeqeq": "error",
       "semi": ["error", "always"]
     }

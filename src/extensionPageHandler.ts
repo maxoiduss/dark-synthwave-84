@@ -16,7 +16,7 @@ export function noRealDocOpened() {
 }
 
 export class ExtensionPageHandler {
-  public async openExtensionPage() {
+  public static async openExtensionPage() {
     if (!vscode.workspace.name) {
       const noProjectText = "There is no opened project.";
       vscode.window.showWarningMessage(noProjectText);

@@ -95,9 +95,9 @@ export class ActivityBarHandler {
   }
 
   public static dispose() {
-    if (this.disposed) { return; }
+    if (ActivityBarHandler.disposed) { return; }
     
-    this.activityBarToggle?.dispose();
-    this.disposed = true;
+    ActivityBarHandler.activityBarToggle?.dispose();
+    ActivityBarHandler.disposed = true;
   }
 }

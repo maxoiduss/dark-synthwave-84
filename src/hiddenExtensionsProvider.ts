@@ -162,7 +162,7 @@ export class HiddenExtensionsProvider implements WebviewViewProvider {
     <body aria-label>
       <h2>Hidden Extensions</h2>
       <button id="${buttonId}" title="Extensions">${withText}</button>
-      <script nonce='${nonce}' type='module'>
+      <script nonce="${nonce}" type="module">
         const vscode = acquireVsCodeApi();
         document.getElementById('${buttonId}').addEventListener('click', () => {
           vscode.postMessage({ command: '${command.hide}' });

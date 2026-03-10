@@ -29,6 +29,7 @@ interface Brand {
   showOutputLog: string;
   openColorPicker: string;
   openEmbedBrowser: string;
+  openEditorRulers: string;
   reopenClosedEditor: string;
   enableEditMode: string;
   resetBackgroundColors: string;
@@ -42,6 +43,8 @@ export const commands = {
   browserOpen: "workbench.action.browser.open",
   reopenClosedEditor: "workbench.action.reopenClosedEditor",
   showRuntimeExtensions: "workbench.action.showRuntimeExtensions",
+  editorLayoutTwoRows: "workbench.action.editorLayoutTwoRows",
+  focusSecondEditorGroup: "workbench.action.focusSecondEditorGroup",
   toggleActivityBarVisibility:
     "workbench.action.toggleActivityBarVisibility",
   toggleSideBarVisibility:
@@ -74,18 +77,25 @@ function isString(it: HasType): boolean {
 function isObject(it: HasType): boolean {
   return it.type === "object";
 }
+function eject<T>(arr: Array<T>, filter: (item: T) => boolean) {
+  const index = arr.findIndex(filter);
+  return index >= 0 ? arr.splice(index, 1)[0] : undefined;
+}
 
 export class ExtensionBrandResolver {
   public static readonly command: string;
   public static readonly webview: string;
+  public static readonly configuration0: string;
   public static readonly configuration1: string;
   public static readonly configuration2: string;
   public static readonly configuration3: string;
+  public static readonly objectProperty0: string;
   public static readonly objectProperty1: string;
   public static readonly objectProperty2: string;
   public static readonly objectProperty3: string;
   public static readonly openSettings: () => Promise<void>;
   public static readonly openRunningExtensions: () => Promise<void>;
+  public static readonly subsriptions: vscode.Disposable[] = [];
 
   private static instance: ExtensionBrandResolver;
 
@@ -155,7 +165,7 @@ export class ExtensionBrandResolver {
             [[name, property]] : []) as [string, HasType][]
       ) : [];
     const background = defaults.length > 0 ?
-      defaults.find(([n, _]) =>
+      defaults.find(([n, ]) =>
         n.includes(ExtensionBrandResolver.objectProperty2))?.[1]
       : undefined;
     if (background) {
@@ -163,7 +173,7 @@ export class ExtensionBrandResolver {
         .forEach((r) => backgroundDefault.colors.set(r[0], r[1]));
     }
     const foreground = defaults.length > 0 ?
-      defaults.find(([n, _]) =>
+      defaults.find(([n, ]) =>
         n.includes(ExtensionBrandResolver.objectProperty3))?.[1]
       : undefined;
     if (foreground) {
@@ -196,6 +206,7 @@ export class ExtensionBrandResolver {
     brand.showOutputLog = `${name}.showOutputLog`;
     brand.openColorPicker = `${name}.openColorPicker`;
     brand.openEmbedBrowser = `${name}.openEmbedBrowser`;
+    brand.openEditorRulers = `${name}.openEditorRulers`;
     brand.enableEditMode = `${name}.enableEditMode`;
     brand.reopenClosedEditor = `${name}.reopenClosedEditor`;
     brand.resetBackgroundColors = `${name}.resetBackgroundColors`;
@@ -235,6 +246,7 @@ export class ExtensionBrandResolver {
 
   public resolve() {
     const dot = ".";
+    const isBoolean = (it: HasType) => it.type === "boolean";
     const isWebview = (it: HasType) => it.type === "webview";
     const afterLastDot = (str?: string) => str?.split(dot)?.pop();
     const beforeLastDot = (str?: string) =>
@@ -242,7 +254,7 @@ export class ExtensionBrandResolver {
     const throws = () => {
       throw new Error("CANNOT SET UNDEFINED TO RESOLVER FIELDS");
     };
-    this.readFromPackageJSON();
+    this.readFromPackageJSON(); // the first step of branding
 
     const properties =
       this.configurationJSON.properties as HasType[];
@@ -252,44 +264,61 @@ export class ExtensionBrandResolver {
     const views = Object.values(this.viewsJSON).find((v) => 
       Array.isArray(v) && v.some(item => isWebview(item))
     ) as Array<HasId>;
-
+    // get all the properties in package.json
     const objectProps = properties ?
       Object.entries<HasType>(properties).flatMap(
         ([name, property]) => isObject(property) ? [name]: []
       ) : [];
-    
+    // make objectProp0 be boolean and objectProp1 be Object
+    const objectProps0 = properties ?
+      Object.entries<HasType>(properties).flatMap(
+        ([name, property]) => isBoolean(property) ? [name]: []
+      ) : [];
+    const objectProp0 = objectProps0.length > 0 ?
+      objectProps0[0] : undefined;
+    // eject those aren't color property
     const objectProp1 = objectProps.length > 0 ?
-      objectProps.find((p) => !hasColor(p)) : undefined;
-    
+      eject(objectProps, (p) => !hasColor(p)) : undefined;
+    // make objectProp2 be color rules
     const objectProp2 = objectProps.length > 0 ?
       objectProps.find((p) => hasColor(p)) : undefined;
     if (objectProp2) {
       objectProps.splice(objectProps.indexOf(objectProp2), 1);
     }
+    // make objectProp3 be another color rules
     const objectProp3 = objectProps.length > 0 ?
       objectProps.find((p) => hasColor(p)) : undefined;
-    
+    // get first value of the command names
     const command = new Set<string>(
       commands.map((c) => c.split(dot)[0])
     ).keys().next().value;
-
+    // get first (and single) value of the view names
     const view = views.length > 0 ?
       views[0].id
     : undefined;
-
+    // init all the fields of the class
     const self = ExtensionBrandResolver as any;
-    self.command = command;
-    self.webview = view;
+    self.command = command; // set common brand name for commands
+    self.webview = view; // set name for webview
+    // composition for configs and properties in package.json
+    self.configuration0 = beforeLastDot(objectProp0) ?? throws();
     self.configuration1 = beforeLastDot(objectProp1) ?? throws();
     self.configuration2 = beforeLastDot(objectProp2) ?? throws();
     self.configuration3 = beforeLastDot(objectProp3) ?? throws();
+    self.objectProperty0 = afterLastDot(objectProp0) ?? throws();
     self.objectProperty1 = afterLastDot(objectProp1) ?? throws();
     self.objectProperty2 = afterLastDot(objectProp2) ?? throws();
     self.objectProperty3 = afterLastDot(objectProp3) ?? throws();
-    Object.freeze(ExtensionBrandResolver);
-
+    Object.freeze(ExtensionBrandResolver); // stop class edition
+    // setup all dedicated instances
     this.setupBrand();
     this.setupColors();
     this.setupDefaultColors();
+  }
+
+  public static dispose() {
+    ExtensionBrandResolver.subsriptions.forEach((subsription) =>
+      subsription.dispose()
+    );
   }
 }

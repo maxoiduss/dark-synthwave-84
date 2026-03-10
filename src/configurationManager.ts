@@ -1,5 +1,6 @@
 import * as vscode from "vscode";
 import { ConfigurationTarget } from "vscode";
+import { ExtensionBrandResolver } from "./extensionBrandResolver";
 
 const busy: string = "busy" as const;
 const free: string = "free" as const;
@@ -14,14 +15,14 @@ function isEmpty(object: any) {
 
 async function doesWorkspaceSettingsExist(): Promise<boolean> {
   const folders = vscode.workspace.workspaceFolders;
-  if (!folders) { return false; }
+  if (!folders || folders.length === 0) { return false; }
 
   const settingsUri = vscode.Uri.joinPath(
     folders[0].uri, ".vscode", "settings.json"
   );
   try {
-      await vscode.workspace.fs.stat(settingsUri);
-      return true;
+    await vscode.workspace.fs.stat(settingsUri);
+    return true;
   } catch {
       return false;
   }
@@ -32,6 +33,8 @@ export class ConfigurationManager {
     vscode.workspace.onDidChangeConfiguration;
   private readonly configurations: Map<string, BusyOrFree> = new Map();
 
+  private conditinallyRequiredConfigs: [string, string | undefined][] = [];
+
   private static instance: ConfigurationManager;
   public static getInstance(configuration: string): ConfigurationManager {
     ConfigurationManager.instance ??= new ConfigurationManager();
@@ -40,6 +43,30 @@ export class ConfigurationManager {
     return ConfigurationManager.instance;
   }
   private constructor() { }
+
+  private areWorkspaceSettingsRequired(
+    conditinallyRequiredConfig: [string, string | undefined]
+  ): boolean {
+    const [conf, sect] = conditinallyRequiredConfig;
+    const needToCheck = this.conditinallyRequiredConfigs.some(([c, s]) => 
+      c === conf && s === sect
+    );
+    if (!needToCheck) { return true; }
+
+    const configuration = ExtensionBrandResolver.configuration0;
+    const section = ExtensionBrandResolver.objectProperty0;
+    const required = this.getValue<boolean>(
+      configuration, section, ConfigurationTarget.Global
+    ) ?? false;
+    
+    return required;
+  }
+
+  public setConditinallyRequiredConfig(
+    conditinallyRequiredConfig: [string, string | undefined]
+  ) {
+    this.conditinallyRequiredConfigs.push(conditinallyRequiredConfig);
+  }
 
   public onChangedConfiguration(configuration: string,
     configurationFullName: string,
@@ -71,26 +98,37 @@ export class ConfigurationManager {
     this.configurations.set(configuration, busy);
     try {
       const workspaceSettingsExist = await doesWorkspaceSettingsExist();
+      const workspaceSettingsRequired = this.areWorkspaceSettingsRequired(
+        config()
+      );
       const updateThenSet = async (on: ConfigurationTarget): Promise<T> =>
       {
         const onScope = on;
-        const value = await update(onScope);
-  
-        if (!workspaceSettingsExist && isEmpty(value)) {
-          return value;
+        const onWorkspace = onScope === ConfigurationTarget.Workspace;
+        let value = await update(onScope);
+        let noneToSaveLocally = !workspaceSettingsExist && isEmpty(value);
+        let stopToSaveLocally = onWorkspace && !workspaceSettingsRequired;
+        if (noneToSaveLocally || stopToSaveLocally) {
+          value = undefined as Awaited<T>;
         }
+
         if (setter === this.setValue && section) {
           await this.setValue(configuration, section, onScope, value);
         } else {
           await setter(value);
         }
+
         return value;
       };
       const global = await updateThenSet(ConfigurationTarget.Global);
-      const wspace = await updateThenSet(ConfigurationTarget.Workspace);
-  
-      if (isEmpty(wspace) && !isEmpty(global)) {
-        await updateThenSet(ConfigurationTarget.Global);
+
+      if (workspaceSettingsExist) {
+        const wspace = await updateThenSet(ConfigurationTarget.Workspace);
+        const useGlobalIfNotEmpty = isEmpty(wspace) && !isEmpty(global);
+
+        if (useGlobalIfNotEmpty) {
+          await updateThenSet(ConfigurationTarget.Global);
+        }
       }
     } finally {
       this.configurations.set(configuration, free);
@@ -139,7 +177,9 @@ export class ConfigurationManager {
     this.configurations.set(configuration, busy);
     try {
       await this.setValue(configuration, section, global, undefined);
-      await this.setValue(configuration, section, workspace, undefined);
+      if (await doesWorkspaceSettingsExist()) {
+        await this.setValue(configuration, section, workspace, undefined);
+      }
     } finally {
       this.configurations.set(configuration, free);
     }

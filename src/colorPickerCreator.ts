@@ -10,61 +10,14 @@ const commands = {
   colorSelected: "colorSelected"
 } as const;
 
-export class ColorPickerCreator implements vscode.Disposable {
-  private static created: vscode.Disposable;
+function getWebviewContent(cspSource: string) {
+  const nonce = getNonce();
+  const csp = getCSP(nonce, cspSource);
+  const hexId = "hex";
+  const inputId = "picker";
 
-  private cspSourceDefault!: string;
-  private notificationShown: boolean = false;
-
-  constructor(private readonly context: ExtensionContext) { }
-
-  public create() {
-    ColorPickerCreator.created = vscode.commands.registerCommand(
-      brand.openColorPicker, () => {
-        const panel = vscode.window.createWebviewPanel(
-            viewType, title,
-            vscode.ViewColumn.Beside,
-            {
-              enableScripts: true,
-              retainContextWhenHidden: true
-            }
-        );
-        this.cspSourceDefault = panel.webview.cspSource;
-        panel.webview.html = this.getWebviewContent();
-
-        const disposed = panel.onDidDispose(() => {
-          this.notificationShown = false;
-        });
-        const received = panel.webview.onDidReceiveMessage((message) => {
-          if (message.command === commands.colorSelected) {
-            if (!this.notificationShown) {
-              const text = "You copied color to a clipboard.";
-              vscode.window.showInformationMessage(text);
-              this.notificationShown = true;
-            }
-            if (typeof message.value === "string") {
-              vscode.env.clipboard.writeText(message.value);
-            }
-          }
-        });
-        this.context.subscriptions.push(disposed, received);
-      }
-    );
-    this.context.subscriptions.push(ColorPickerCreator.created);
-  }
-
-  public dispose() {
-    ColorPickerCreator.created.dispose();
-  }
-
-  private getWebviewContent() {
-    const nonce = getNonce();
-    const csp = getCSP(nonce, this.cspSourceDefault);
-    const hexId = "hex";
-    const inputId = "picker";
-
-    return `<!DOCTYPE html>
-      <html lang="en">
+  return `<!DOCTYPE html>
+    <html lang="en">
       <head>
         <meta charset="UTF-8">
         <meta http-equiv="Content-Security-Policy" content="${csp}">
@@ -133,7 +86,7 @@ export class ColorPickerCreator implements vscode.Disposable {
       <body aria-label>
         <input type="color" alpha id="${inputId}">
         <div id="${hexId}">#000000</div>
-        <script nonce='${nonce}' type='module'>
+        <script nonce="${nonce}" type="module">
           const vscode = acquireVsCodeApi();
           const picker = document.getElementById('${inputId}');
           const hexText = document.getElementById('${hexId}');
@@ -142,7 +95,7 @@ export class ColorPickerCreator implements vscode.Disposable {
             picker.type = 'color';
             };
           let pickerOpened = false;
-          
+
           picker.addEventListener('input', (e) => {
             pickerOpened = true;
             const color = e.target.value;
@@ -170,6 +123,58 @@ export class ColorPickerCreator implements vscode.Disposable {
           }, { passive: true });
         </script>
       </body>
-      </html>`;
+    </html>`;
+}
+
+export class ColorPickerCreator implements vscode.Disposable {
+  private static created: vscode.Disposable;
+
+  private notificationShown: boolean = false;
+  private cspSourceDefault!: string;
+  private webviewPanel!: vscode.WebviewPanel;
+
+  constructor(private readonly context: ExtensionContext) { }
+
+  public create(): vscode.Disposable {
+    ColorPickerCreator.created = vscode.commands.registerCommand(
+      brand.openColorPicker, () => {
+        const panel = vscode.window.createWebviewPanel(
+          viewType, title,
+          vscode.ViewColumn.Beside,
+          {
+            enableScripts: true,
+            retainContextWhenHidden: true
+          }
+        );
+        this.webviewPanel = panel;
+        this.cspSourceDefault = panel.webview.cspSource;
+        panel.webview.html = getWebviewContent(this.cspSourceDefault);
+
+        panel.onDidDispose(() => {
+          this.notificationShown = false;
+        }, null, this.context.subscriptions);
+        
+        panel.webview.onDidReceiveMessage((message) => {
+          if (message.command === commands.colorSelected) {
+            if (!this.notificationShown) {
+              const text = "You copied color to a clipboard.";
+              vscode.window.showInformationMessage(text);
+              this.notificationShown = true;
+            }
+            if (typeof message.value === "string") {
+              vscode.env.clipboard.writeText(message.value);
+            }
+          }
+        }, null, this.context.subscriptions);
+      }
+    );
+    this.context.subscriptions.push(ColorPickerCreator.created);
+
+    return this;
+  }
+
+  public dispose() {
+    this.webviewPanel?.dispose();
+    ColorPickerCreator.created.dispose();
   }
 }

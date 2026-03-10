@@ -65,6 +65,13 @@
             "description": "key-value: a key is two strings colon-separated and a value is pattern for Filter, example: key is 'rendererLog:Window' and value is 'Window, !info'"
           }
         },
+        "output.filter.useWorkspace": {
+          "type": "boolean",
+          "title": "Use Workspace",
+          "default": "false",
+          "scope": "application",
+          "markdownDescription": "\n\n Will the rules for Output Filter be saved on Workspace level, i.e., in *.vscode*/*settings.json*\n\n"
+        },
         "color.customization.rules.background": {
           "type": "object",
           "title": "Rules",
@@ -427,6 +434,10 @@
         "title": "Show Ouput Log Using Rules"
       },
       {
+        "command": "dark-synthwave.openEditorRulers",
+        "title": "Configure Editor Rulers"
+      },
+      {
         "command": "dark-synthwave.openEmbedBrowser",
         "title": "Open Embedded Web Browser"
       },
@@ -473,6 +484,10 @@
       "editor/title/context": [
         {
             "command": "dark-synthwave.openColorPicker",
+            "when": "activeEditor == 'workbench.editor.settings2'"
+        },
+        {
+            "command": "dark-synthwave.openEditorRulers",
             "when": "activeEditor == 'workbench.editor.settings2'"
         },
         {

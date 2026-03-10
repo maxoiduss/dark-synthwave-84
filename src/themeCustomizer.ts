@@ -40,6 +40,7 @@ export class ThemeCustomizer implements vscode.Disposable {
     && ConfigurationManager.getInstance(tag.foreground);
 
   private editMode: boolean | undefined = false;
+  private cleanedRules: boolean = true;
   private previousTextEditor: vscode.TextEditor | undefined;
 
   constructor(private readonly context: vscode.ExtensionContext) {
@@ -54,7 +55,7 @@ export class ThemeCustomizer implements vscode.Disposable {
       )
     };
     const changedTextEditor = window.onDidChangeActiveTextEditor((e) => {
-      if (!this.previousTextEditor && e) {
+      if (!this.previousTextEditor && e && !this.cleanedRules) {
         this.cleanRules();
       }
       this.previousTextEditor = e;
@@ -124,6 +125,7 @@ export class ThemeCustomizer implements vscode.Disposable {
   private async cleanRules() {
     this.closeNotification();
     this.editMode = undefined;
+    this.cleanedRules = true;
 
     await this.configManager.cleanValue(
       tag.background, tag.scheme.background);
@@ -135,6 +137,8 @@ export class ThemeCustomizer implements vscode.Disposable {
   }
 
   private async editModeSetup(): Promises {
+    this.cleanedRules = false;
+
     await this.fillRules("background");
     await this.fillRules("foreground");
     this.closeNotification();
@@ -201,12 +205,11 @@ export class ThemeCustomizer implements vscode.Disposable {
       config.backgroundNames : config.foregroundNames;
     const hasColorProperty = where === "background" ?
       backgroundDefault.contains : foregroundDefault.contains;
-    let configTarget: vscode.ConfigurationTarget;
+
     this.editMode = true;
 
     await this.configManager.makeUpdateConfiguration(names,
       async (target) => {
-        configTarget = target;
         const themesOverrides: any = this.configManager.getValue(
           undefined, commands.colorCustomizations, target
         );
