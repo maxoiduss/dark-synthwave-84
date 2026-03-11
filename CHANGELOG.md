@@ -1,5 +1,14 @@
 ## Changelog
 
+### 1.1.0
+
+ - `Fixed spawning errors` [when no Workspace is opened](https://github.com/maxoiduss/dark-synthwave-84/commit/5b412f99482e08228fa9a916ac2f515ceb9dc2ea).
+
+ - [Use or Not Workspace level](https://github.com/maxoiduss/dark-synthwave-84/commit/dddf20e68c8aa00abd2ebd71992655d4a4a8d6d2) [setting](https://github.com/maxoiduss/dark-synthwave-84/commit/5b412f99482e08228fa9a916ac2f515ceb9dc2ea) for `Output Filter` configuration property.
+
+ - [*Editor Rulers* configuring](https://github.com/maxoiduss/dark-synthwave-84/commit/5b412f99482e08228fa9a916ac2f515ceb9dc2ea) as a part of additional customization.
+
+#
 ### 1.0.6
 
  - [Fixed crucial misbehavior](https://github.com/maxoiduss/dark-synthwave-84/commit/5578185b8e7e2a8fcd6437ba2ca33df467ea26e5) on copying the text from not-editor places (like *notifications*).
@@ -9,7 +18,7 @@
 #
 ### 1.0.5
 
- - [Theme customization](https://github.com/maxoiduss/dark-synthwave-84/commit/7c40a92cfef325800b567fb36e939715ec0224e7) in settings using [`Color Picker`](https://github.com/maxoiduss/dark-synthwave-84/commit/f7d759a7d892f6745a588022153d3d4bca6d9a1c).
+ - [*Theme customization*](https://github.com/maxoiduss/dark-synthwave-84/commit/7c40a92cfef325800b567fb36e939715ec0224e7) in settings using [`Color Picker`](https://github.com/maxoiduss/dark-synthwave-84/commit/f7d759a7d892f6745a588022153d3d4bca6d9a1c).
 
  - [`Reopen Closed Editor` and `Open Embedded Web Browser` commands](https://github.com/maxoiduss/dark-synthwave-84/commit/0b842c88b779d9f8f9ee561762553793c084727d) in the title context menu.
 
