@@ -13,7 +13,7 @@ Java, Python, Dart, C#, Kotlin, Swift, TypeScript, C++, Go and other.
 
 And also here are extra features like *Reveal File* in the Explorer view or *Extension* (if it's opened as project and installed) and Toggle *Show/Hide Activity Bar* button in the Status Bar.
 
-![Features](./features.png)
+![Features](https://raw.githubusercontent.com/maxoiduss/dark-synthwave-84/master/features.png)
 
 ### Features
 - 👁️‍🗨️ *Hidden* Extensions View. Drag it to *Extensions View Container*, then you can see all hidden extension just by expanding this view. You need to collapse this view in order not to show them again.
