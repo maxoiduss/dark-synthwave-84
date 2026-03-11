@@ -800,6 +800,13 @@
 			}
 		},
 		{
+			"scope": "markup.list.unnumbered.markdown",
+			"settings": {
+				"foreground": "#A48913",
+				"fontStyle": ""
+			}
+		},
+		{
 			"scope": "markup.quote",
 			"settings": {
 				"foreground": "#EE2266"
@@ -841,6 +848,7 @@
 		{
 			"scope": "markup.italic.markdown",
 			"settings": {
+				"foreground": "#D33682",
 				"fontStyle": "italic"
 			}
 		},
@@ -1614,15 +1622,6 @@
 			"settings": {
 				"foreground": "#A05CFA",
 				"fontStyle": "bold"
-			}
-		},
-		{
-			"scope": [
-				"markup.italic.markdown"
-			],
-			"settings": {
-				"foreground": "#2EE2FA",
-				"fontStyle": "italic"
 			}
 		},
 		{
