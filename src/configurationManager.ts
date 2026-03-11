@@ -103,14 +103,13 @@ export class ConfigurationManager {
       );
       const updateThenSet = async (on: ConfigurationTarget): Promise<T> =>
       {
+        const asNone = () => undefined as Awaited<T>;
         const onScope = on;
         const onWorkspace = onScope === ConfigurationTarget.Workspace;
-        let value = await update(onScope);
-        let noneToSaveLocally = !workspaceSettingsExist && isEmpty(value);
         let stopToSaveLocally = onWorkspace && !workspaceSettingsRequired;
-        if (noneToSaveLocally || stopToSaveLocally) {
-          value = undefined as Awaited<T>;
-        }
+        let value = stopToSaveLocally ? asNone() : await update(onScope);
+        let noneToSaveLocally = !workspaceSettingsExist && isEmpty(value);
+        if (noneToSaveLocally) { value = asNone(); }
 
         if (setter === this.setValue && section) {
           await this.setValue(configuration, section, onScope, value);
