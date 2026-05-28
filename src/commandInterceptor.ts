@@ -6,11 +6,13 @@ import {
 
 type Voidable = void | Promise<void>;
 type CallBack = (() => Voidable) | undefined;
+type EnumLike<T> = T[keyof T];
+type InterceptorType = EnumLike<typeof InterceptorType>;
 
-export enum InterceptorType {
-  Strong = "strong",
-  Weak = "weak"
-}
+// eslint-disable-next-line @typescript-eslint/naming-convention
+export const InterceptorType = {
+  Strong: "strong",
+  Weak:   "weak"               } as const;
 
 export class CommandInterceptor {
   private registered: Disposable | undefined;
@@ -20,11 +22,11 @@ export class CommandInterceptor {
   }
 
   constructor(
-    private readonly command: string,
-    private readonly type: InterceptorType,
-    private readonly context: ExtensionContext,
-    private readonly action: () => Voidable,
-    private readonly callback?: CallBack
+    private command: string,
+    private type: InterceptorType,
+    private context: ExtensionContext,
+    private action: () => Voidable,
+    private callback?: CallBack
   ) {
     if (this.isStrong) {
       this.register();

@@ -9,7 +9,7 @@ const empty: {} = {} as const;
 type BusyOrFree = typeof busy | typeof free;
 type Empty = typeof empty;
 
-function isEmpty(object: any) {
+function isEmpty(object: unknown) {
   return JSON.stringify(object) === JSON.stringify(empty);
 }
 
@@ -24,7 +24,7 @@ async function doesWorkspaceSettingsExist(): Promise<boolean> {
     await vscode.workspace.fs.stat(settingsUri);
     return true;
   } catch {
-      return false;
+    return false;
   }
 }
 
@@ -70,8 +70,8 @@ export class ConfigurationManager {
 
   public onChangedConfiguration(configuration: string,
     configurationFullName: string,
-    listener: () => any,
-    thisArgs?: any,
+    listener: () => unknown,
+    thisArgs?: unknown,
     disposables?: vscode.Disposable[]
   ): vscode.Disposable {
     const onDidChangeConfiguration = this.changed((e) => {
@@ -87,7 +87,7 @@ export class ConfigurationManager {
   public async makeUpdateConfiguration<T extends Empty | undefined>(
     config: () => [string, string | undefined],
     update: (target: ConfigurationTarget) => Promise<T>,
-    setter: (...args: any[]) => Promise<any> = this.setValue
+    setter: (...args: any[]) => Promise<unknown> = this.setValue
   ): Promise<void> {
     const configuration: string = config()[0];
     const section: string | undefined = config()[1];

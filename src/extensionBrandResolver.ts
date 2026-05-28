@@ -23,12 +23,12 @@ export const backgroundDefault = new Default();
 
 interface Brand {
   aimFile: string;
+  relaunchTerminal: string;
   hideBuiltinFeatures: string;
   showBuiltinFeatures: string;
   showActivityBar: string;
   showOutputLog: string;
   openColorPicker: string;
-  openEmbedBrowser: string;
   openEditorRulers: string;
   reopenClosedEditor: string;
   enableEditMode: string;
@@ -38,9 +38,9 @@ interface Brand {
 export const brand = {} as Brand;
 
 export const commands = {
+  terminalRelaunch: "workbench.action.terminal.relaunch",
   colorCustomizations: "workbench.colorCustomizations",
   openSettings: "workbench.action.openSettings",
-  browserOpen: "workbench.action.browser.open",
   reopenClosedEditor: "workbench.action.reopenClosedEditor",
   showRuntimeExtensions: "workbench.action.showRuntimeExtensions",
   editorLayoutTwoRows: "workbench.action.editorLayoutTwoRows",
@@ -100,7 +100,7 @@ export class ExtensionBrandResolver {
   private static instance: ExtensionBrandResolver;
 
   private readonly filtration:
-  (value: any, index: number, array: any[]) => unknown =
+  (value: unknown, index: number, array: unknown[]) => unknown =
         value => typeof value === "string"
     && !value.includes(":");
 
@@ -108,7 +108,7 @@ export class ExtensionBrandResolver {
   private configurationJSON: any;
   private viewsJSON: any;
 
-  constructor(private readonly context: vscode.ExtensionContext) {
+  constructor(private context: vscode.ExtensionContext) {
     if (ExtensionBrandResolver.instance) { return; }
 
     ExtensionBrandResolver.instance = this;
@@ -200,12 +200,12 @@ export class ExtensionBrandResolver {
   private setupBrand() {
     const name = ExtensionBrandResolver.command;
     brand.aimFile = `${name}.aimFile`;
+    brand.relaunchTerminal = `${name}.relaunchTerminal`;
     brand.showBuiltinFeatures = `${name}.showBuiltinFeatures`;
     brand.hideBuiltinFeatures = `${name}.hideBuiltinFeatures`;
     brand.showActivityBar = `${name}.showActivityBar`;
     brand.showOutputLog = `${name}.showOutputLog`;
     brand.openColorPicker = `${name}.openColorPicker`;
-    brand.openEmbedBrowser = `${name}.openEmbedBrowser`;
     brand.openEditorRulers = `${name}.openEditorRulers`;
     brand.enableEditMode = `${name}.enableEditMode`;
     brand.reopenClosedEditor = `${name}.reopenClosedEditor`;

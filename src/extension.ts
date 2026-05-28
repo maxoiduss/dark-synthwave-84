@@ -52,17 +52,20 @@ export function activate(context: vscode.ExtensionContext) {
   ExtensionBrandResolver.subsriptions.push(editorRulers);
   editorRulers.handle();
 
-  const reopenClosedCommand = vscode.commands.registerCommand(
+  const reopenClosedRegistered = vscode.commands.registerCommand(
     brand.reopenClosedEditor, () => vscode.commands.executeCommand(
       commands.reopenClosedEditor
     )
   );
-  const openBrowserCommand = vscode.commands.registerCommand(
-    brand.openEmbedBrowser, () => vscode.commands.executeCommand(
-      commands.browserOpen
+  const relaunchTerminalRegistered = vscode.commands.registerCommand(
+    brand.relaunchTerminal, () => vscode.commands.executeCommand(
+      commands.terminalRelaunch
     )
   );
-  context.subscriptions.push(reopenClosedCommand, openBrowserCommand);
+  context.subscriptions.push(
+    relaunchTerminalRegistered,
+    reopenClosedRegistered
+  );
 }
 
 export function deactivate(_context: vscode.ExtensionContext) {

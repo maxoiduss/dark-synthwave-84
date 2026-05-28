@@ -40,7 +40,7 @@ export class HiddenExtensionsProvider implements WebviewViewProvider {
   private readonly collapseView = "collapse view to stop show";
   private readonly unfocus = commands.focusActiveEditorGroup;
 
-  constructor(private readonly context: vscode.ExtensionContext) {
+  constructor(private context: vscode.ExtensionContext) {
     this.registerCommands();
   }
 

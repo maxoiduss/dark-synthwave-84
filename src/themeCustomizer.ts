@@ -43,7 +43,7 @@ export class ThemeCustomizer implements vscode.Disposable {
   private cleanedRules: boolean = true;
   private previousTextEditor: vscode.TextEditor | undefined;
 
-  constructor(private readonly context: vscode.ExtensionContext) {
+  constructor(private context: vscode.ExtensionContext) {
     const changedConfig = {
       first: this.configManager.onChangedConfiguration(tag.background,
         config.fullName(config.backgroundNames()),
@@ -184,7 +184,7 @@ export class ThemeCustomizer implements vscode.Disposable {
     const has = on === "background" ?
       backgroundDefault.contains : foregroundDefault.contains;
     let configTarget: vscode.ConfigurationTarget;
-    let themesOverrides: any;
+    let themesOverrides: unknown;
 
     await this.cleanRules();
     await this.configManager.makeUpdateConfiguration(names,

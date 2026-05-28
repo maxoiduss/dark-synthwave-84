@@ -38,7 +38,7 @@ export class OutputFilterHandler implements vscode.Disposable {
   private readonly configManager: ConfigurationManager =
     ConfigurationManager.getInstance(tag.name);
 
-  constructor(private readonly context: vscode.ExtensionContext) {
+  constructor(private context: vscode.ExtensionContext) {
     const changedConfig = this.configManager.onChangedConfiguration(tag.name,
       `${tag.name}.${tag.scheme.rules}`,
       () => this.updateConfiguration(changedConfig)

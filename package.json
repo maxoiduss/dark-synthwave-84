@@ -250,7 +250,7 @@
             }
           },
           "default": {
-            "activityBar.activeBackground":"#211E2E38",
+            "activityBar.activeBackground": "#211E2E38",
             "activityBar.background": "#171520",
             "activityBarBadge.background": "#F97E72CC",
             "badge.background": "#2A2139",
@@ -263,12 +263,12 @@
             "editorGutter.background": "#1A1A33CC",
             "focusBorder": "#880088",
             "input.background": "#2A2139",
-            "list.focusOutline":"#880088",
+            "list.focusOutline": "#880088",
             "list.hoverBackground": "#37294D99",
             "menu.background": "#463465",
             "notificationCenterHeader.background": "#BB00FFDA",
             "notifications.background": "#241B2FB6",
-            "panelTitleBadge.background":"#F97E72CC",
+            "panelTitleBadge.background": "#F97E72CC",
             "settings.focusedRowBackground": "#37294D5C",
             "sideBar.background": "#1F11316C",
             "sideBarSectionHeader.background": "#241B2F",
@@ -407,14 +407,14 @@
             "notificationCenterHeader.foreground": "#500000",
             "notifications.foreground": "#847399C0",
             "panelTitle.activeForeground": "#A9F2FFAA",
-            "panelTitleBadge.foreground":"#2A2139",
+            "panelTitleBadge.foreground": "#2A2139",
             "sideBar.foreground": "#FFFFFF99",
             "sideBarSectionHeader.foreground": "#FFFFFFCA",
             "statusBar.foreground": "#FFFFFF80",
             "tab.activeBorder": "#880088",
             "tab.activeForeground": "#E5D2FF",
             "textLink.activeForeground": "#A05CFA",
-		        "textLink.foreground": "#F97E72",
+            "textLink.foreground": "#F97E72",
             "titleBar.activeForeground": "#FFFFFF"
           }
         }
@@ -436,10 +436,6 @@
       {
         "command": "dark-synthwave.openEditorRulers",
         "title": "Configure Editor Rulers"
-      },
-      {
-        "command": "dark-synthwave.openEmbedBrowser",
-        "title": "Open Embedded Web Browser"
       },
       {
         "command": "dark-synthwave.openColorPicker",
@@ -466,6 +462,10 @@
         "title": "Show/Hide Activity Bar"
       },
       {
+        "command": "dark-synthwave.relaunchTerminal",
+        "title": "Relaunch Terminal"
+      },
+      {
         "command": "dark-synthwave.aimFile",
         "title": "Reveal File/Extension",
         "icon": {
@@ -483,21 +483,16 @@
       ],
       "editor/title/context": [
         {
-            "command": "dark-synthwave.openColorPicker",
-            "when": "activeEditor == 'workbench.editor.settings2'"
+          "command": "dark-synthwave.openColorPicker",
+          "when": "activeEditor == 'workbench.editor.settings2'"
         },
         {
-            "command": "dark-synthwave.openEditorRulers",
-            "when": "activeEditor == 'workbench.editor.settings2'"
+          "command": "dark-synthwave.openEditorRulers",
+          "when": "activeEditor == 'workbench.editor.settings2'"
         },
         {
-            "command": "dark-synthwave.reopenClosedEditor",
-            "group": "1_open"
-        },
-        {
-            "command": "dark-synthwave.openEmbedBrowser",
-            "when": "activeEditor == 'gettingStartedPage'",
-            "group": "z_other"
+          "command": "dark-synthwave.reopenClosedEditor",
+          "group": "1_open"
         }
       ],
       "editor/context": [
@@ -524,6 +519,11 @@
         {
           "command": "dark-synthwave.showOutputLog",
           "group": "panel"
+        },
+        {
+          "command": "dark-synthwave.relaunchTerminal",
+          "group": "7_kill",
+          "when": "terminalHasBeenCreated"
         }
       ]
     }

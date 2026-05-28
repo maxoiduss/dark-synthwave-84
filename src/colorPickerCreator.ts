@@ -1,7 +1,7 @@
 import * as vscode from "vscode";
 import { ExtensionContext } from "vscode";
-import { brand } from "./extensionBrandResolver";
 import { getNonce, getCSP } from "./hiddenExtensionsProvider";
+import { brand } from "./extensionBrandResolver";
 
 const title: string = "Color Picker";
 const viewType: string = "colorPicker";
@@ -133,7 +133,7 @@ export class ColorPickerCreator implements vscode.Disposable {
   private cspSourceDefault!: string;
   private webviewPanel!: vscode.WebviewPanel;
 
-  constructor(private readonly context: ExtensionContext) { }
+  constructor(private context: ExtensionContext) { }
 
   public create(): vscode.Disposable {
     ColorPickerCreator.created = vscode.commands.registerCommand(
