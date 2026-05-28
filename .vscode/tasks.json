@@ -6,6 +6,8 @@
 		{
 			"type": "npm",
 			"script": "watch",
+			"label": "watcher",
+			"icon": {"id": "combine"},
 			"problemMatcher": "$tsc-watch",
 			"isBackground": true,
 			"presentation": {
