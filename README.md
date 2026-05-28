@@ -20,7 +20,6 @@ And also here are extra features like *Reveal File* in the Explorer view or *Ext
 - 🎯 *Reveal file* is a 'target' icon on the Tab Bar. Click on it shows you: a) the file revealed in the *Explorer View* - if it's opened in the Editor right now, b) installed extension - if its name equals the project name is opened now, c) pop up message where you can choose between opening Dark SynthWave settings or all running extensions View.
 - ⬅️ *Show/Hide Activity Bar* is the item in the Status Bar. Single click will hide or show - if it's hidden - Activity Bar. Rapid multiclick will show you a menu with several variants what to toggle (show/hide).
 - 📟 *Rules* for the *Filter* in the *Output* channels. In the settings you can specify the string you will automatically have in the clipboard when you a) copy *non selected* text - in the selected channel specified by you or b) use 'Show Ouput Log Using Rules' command. After that you can paste the string to Output Filter, there is the only way to force the channel to filter the messages.
-- 🌐 *Open Embedded Web Browser* - command in the title context menu when *'Welcome'* page is opened. Yes, you can use built-in web browser.
 - 📏 *Editor Rulers configuring* - there is ability to use sliders and color pickers to manage all Editor Rulers saved in the settings. Open respective context menu command from opened settings tab.
 - 🎛️ *Theme customization* - you can customize foreground and background colors of the theme using *Color Picker* right in the settings.
 
@@ -41,6 +40,15 @@ It's for the original theme: before you make any changes, [please read the contr
 
 ## Changelog 📜
 
+### 1.1.1
+
+ - `Relaunch Terminal` [command](https://github.com/maxoiduss/dark-synthwave-84/commit/453a7b984d54f1f538ec906a258caa65362ce53e) right near `Kill terminal`
+
+ - Removed `Open Embedded Web Browser` command as redundand
+
+ - `Gitdecorations` and `Debug Console` colors [updated](https://github.com/maxoiduss/dark-synthwave-84/commit/72142240d88c2aa9b0d0fccd3d3d8c6a07744196)
+
+#
 ### 1.1.0
 
  - `Fixed spawning errors` [when no Workspace is opened](https://github.com/maxoiduss/dark-synthwave-84/commit/5b412f99482e08228fa9a916ac2f515ceb9dc2ea).

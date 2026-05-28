@@ -1,5 +1,14 @@
 ## Changelog
 
+### 1.1.1
+
+ - `Relaunch Terminal` [command](https://github.com/maxoiduss/dark-synthwave-84/commit/453a7b984d54f1f538ec906a258caa65362ce53e) right near `Kill terminal`
+
+ - Removed `Open Embedded Web Browser` command as redundand
+
+ - `Gitdecorations` and `Debug Console` colors [updated](https://github.com/maxoiduss/dark-synthwave-84/commit/72142240d88c2aa9b0d0fccd3d3d8c6a07744196)
+
+#
 ### 1.1.0
 
  - `Fixed spawning errors` [when no Workspace is opened](https://github.com/maxoiduss/dark-synthwave-84/commit/5b412f99482e08228fa9a916ac2f515ceb9dc2ea).
