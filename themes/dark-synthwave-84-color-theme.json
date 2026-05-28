@@ -13,6 +13,9 @@
 		"breadcrumbPicker.background": "#232530",
 		"button.background": "#614D85",
 		"commandCenter.inactiveForeground":"#BEEDFF80",
+		"debugConsole.sourceForeground": "#B267E6",
+		"debugConsole.warningForeground":"#CD9731",
+		"debugConsole.errorForeground": "#FF1D2C",
 		"debugToolBar.background": "#463465EE",
 		"diffEditor.insertedTextBackground": "#0BEB9935",
 		"diffEditor.removedTextBackground": "#FE445035",
@@ -69,7 +72,7 @@
 		"editorWidget.background": "#171520DC",
 		"editorWidget.border": "#FFFFFF22",
 		"editorWidget.resizeBorder": "#FFFFFF44",
-		"errorForeground": "#FF1D2C",
+		//"errorForeground": "#FF1D2C",
 		"extensionButton.prominentForeground": "#500000",
 		"extensionButton.prominentBackground": "#F97E72",
 		"extensionButton.prominentHoverBackground": "#FF7EDB",
@@ -80,6 +83,8 @@
 		"extensionButton.hoverBackground": "#FF1D6154",
 		"focusBorder": "#880088",
 		"foreground": "#FFFFFF",
+		"gitDecoration.conflictingResourceForeground": "#F97E72",
+		"gitDecoration.ignoredResourceForeground": "#818076",
 		"input.background": "#2A2139",
 		"input.border": "#C9303822",
 		"inputOption.activeBorder": "#FF7EDB99",
@@ -124,7 +129,7 @@
 		"scrollbarSlider.hoverBackground": "#C9303885",
 		"notificationCenter.border": "#FFFFFF66",
 		"notificationCenterHeader.foreground": "#500000",
-		"notificationCenterHeader.background": "#bb00ffda",
+		"notificationCenterHeader.background": "#BB00FFDA",
 		"notificationToast.border": "#FFFFFF66",
 		"notifications.foreground": "#847399C0",
 		"notifications.background": "#241B2FB6",
@@ -256,7 +261,7 @@
 		{
 			"scope": "constant.language.json",
 			"settings": {
-				"foreground": "#d353e4"
+				"foreground": "#D353E4"
 			}
 		},
 		{
@@ -401,6 +406,7 @@
 		},
 		{
 			"scope": [
+				"markup.fenced_code.block.markdown",
 				"source.js punctuation.definition.template-expression",
 				"source.js punctuation.section.embedded.coffee"
 			],
@@ -1491,7 +1497,9 @@
 			}
 		},
 		{
-			"scope":"meta.annotation",
+			"scope": [
+				"meta.annotation"
+			],
 			"settings": {
 				"foreground": "#97D451"
 			}
@@ -1626,6 +1634,15 @@
 		},
 		{
 			"scope": [
+				"meta.paragraph.markdown"
+			],
+			"settings": {
+				"foreground": "#6796E6",
+				"fontStyle": "bold"
+			}
+		},
+		{
+			"scope": [
 				"markup.bold.markdown"
 			],
 			"settings": {
@@ -1723,7 +1740,7 @@
 		{
 			"scope": "token.info-token",
 			"settings": {
-				"foreground": "#6796E6"
+				"foreground": "#09F7A099"
 			}
 		},
 		{
