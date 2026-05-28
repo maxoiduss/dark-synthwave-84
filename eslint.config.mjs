@@ -14,7 +14,7 @@ export default [
     languageOptions: {
       parser: tsParser,
       parserOptions: {
-        ecmaVersion: 6,
+        ecmaVersion: 2024,
         sourceType: "module",
         project: "./tsconfig.json",
         tsconfigRootDir: import.meta.dirname
